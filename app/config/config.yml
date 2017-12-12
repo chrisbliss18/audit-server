@@ -1,0 +1,86 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: security.yml }
+    - { resource: services.yml }
+    - { resource: "@XWPAuditServerBundle/Resources/config/services.yml" }
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: en
+    tide_api_settings:
+        key: "%tide_api_key%"
+        secret: "%tide_api_secret%"
+        auth_url: "%tide_api_auth_url%"
+        connect_timeout: "%tide_api_connect_timeout%"
+    audit_settings:
+        scripts_path: "%audit_scripts_path%"
+        standards_path: "%audit_standards_path%"
+        weightings_path: "%audit_weightings_path%"
+        stats_path: "%audit_stats_path%"
+    logger_settings:
+        name: Tide
+        handlers:
+            file:
+                type: stream
+                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: debug
+    email_sender: "%audit_email_sender%"
+    aws_sqs_settings:
+        version: "%aws_sqs_version%"
+        region: "%aws_sqs_region%"
+        key: "%aws_sqs_key%"
+        secret: "%aws_sqs_secret%"
+        queue_name: "%aws_sqs_queue_name%"
+    aws_sqs_lh_settings:
+        version: "%aws_sqs_lh_version%"
+        region: "%aws_sqs_lh_region%"
+        key: "%aws_sqs_lh_key%"
+        secret: "%aws_sqs_lh_secret%"
+        queue_name: "%aws_sqs_lh_queue_name%"
+        queue_enabled: "%aws_sqs_lh_queue_enabled%"
+    aws_s3_settings:
+        version: "%aws_s3_version%"
+        region: "%aws_s3_region%"
+        key: "%aws_s3_key%"
+        secret: "%aws_s3_secret%"
+        bucket_name: "%aws_s3_bucket_name%"
+
+framework:
+    #esi:             ~
+    #translator:      { fallbacks: ["%locale%"] }
+    secret:          "%secret%"
+    router:
+        resource: "%kernel.root_dir%/config/routing.yml"
+        strict_requirements: ~
+    form:            ~
+    csrf_protection: ~
+    validation:      { enable_annotations: true }
+    #serializer:      { enable_annotations: true }
+    templating:
+        engines: ['twig']
+    default_locale:  "%locale%"
+    trusted_hosts:   ~
+    trusted_proxies: ~
+    session:
+        # http://symfony.com/doc/current/reference/configuration/framework.html#handler-id
+        handler_id:  session.handler.native_file
+        save_path:   "%kernel.root_dir%/../var/sessions/%kernel.environment%"
+    fragments:       ~
+    http_method_override: true
+    assets: ~
+    php_errors:
+        log: true
+
+# Twig Configuration
+twig:
+    debug:            "%kernel.debug%"
+    strict_variables: "%kernel.debug%"
+
+# Swiftmailer Configuration
+swiftmailer:
+    transport: "%mailer_transport%"
+    host:      "%mailer_host%"
+    username:  "%mailer_user%"
+    password:  "%mailer_password%"
+    spool:     { type: memory }

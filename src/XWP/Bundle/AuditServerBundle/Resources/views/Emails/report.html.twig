@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Audit Report for project {{ name | e }}</title>
+</head>
+<body>
+	{% for audit in audits %}
+			Your PHPCS audit score for {{ filename }} is : {{ audit }}
+	{% endfor %}
+</body>
+</html>
