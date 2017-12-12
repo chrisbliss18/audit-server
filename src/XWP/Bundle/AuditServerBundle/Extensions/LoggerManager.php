@@ -67,7 +67,10 @@ class LoggerManager
     {
         $hasHandler = false;
         foreach ($handlers as $hander => $handlerSettings) {
-            $level = isset($handlerSettings['level']) ? $this->loggerLevel[strtoupper($handlerSettings['level'])] : $this->loggerLevel['DEBUG'];
+            $level = isset($handlerSettings['level'])
+                ? $this->loggerLevel[strtoupper($handlerSettings['level'])]
+                : $this->loggerLevel['DEBUG'];
+            
             switch ($hander) {
                 case 'file':
                 default:

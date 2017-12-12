@@ -95,19 +95,33 @@ class PhpCsAuditManager extends BaseManager
      *
      * @return array Audit results.
      */
-    public function runAudit($auditsRequest, $audit, $auditsFilesDirectory, $auditsReportsDirectory, $auditsFilesChecksum, $options = array())
-    {
+    public function runAudit(
+        $auditsRequest,
+        $audit,
+        $auditsFilesDirectory,
+        $auditsReportsDirectory,
+        $auditsFilesChecksum,
+        $options = array()
+    ) {
         $auditReports = array();
 
         $options = array_merge($this->defaultOptions, $options);
         $this->auditStandardKey = $this->setAuditStandardKey($options);
 
         if (! $this->checkAuditStandardExists($this->auditStandardKey)) {
-            $this->output->writeln("<error>{$audit['type']} standard {$options['standard']} does not exists. Skipping running audit...</error>");
-            throw new \Exception("{$audit['type']} standard {$options['standard']} does not exists. Skipping running audit...");
+            $this->output->writeln(
+                "<error>{$audit['type']} standard {$options['standard']} does not exists. " .
+                "Skipping running audit...</error>"
+            );
+            throw new \Exception(
+                "{$audit['type']} standard {$options['standard']} does not exists. Skipping running audit..."
+            );
         }
 
-        $this->output->writeln("<info>Performing {$audit['type']} (standard: {$options['standard']}) on {$auditsRequest['sourceUrl']} ({$auditsRequest['sourceType']})</info>");
+        $this->output->writeln(
+            "<info>Performing {$audit['type']} (standard: {$options['standard']}) on {$auditsRequest['sourceUrl']} " .
+            "({$auditsRequest['sourceType']})</info>"
+        );
 
         $stringOptions = '';
         foreach ($options as $option => $value) {
@@ -118,7 +132,7 @@ class PhpCsAuditManager extends BaseManager
             }
         }
 
-        $fullReportFilename = $auditsFilesChecksum . '-phpcs-' . $this->auditStandardKey . '-full.' . $options['report'];
+        $fullReportFilename = $auditsFilesChecksum.'-phpcs-'.$this->auditStandardKey.'-full.'.$options['report'];
         $fullReportPath = $auditsReportsDirectory . '/' . $fullReportFilename;
 
         $command = "phpcs $stringOptions --report-{$options['report']}=$fullReportPath $auditsFilesDirectory -q";
@@ -152,7 +166,7 @@ class PhpCsAuditManager extends BaseManager
         }
 
         $weightingsFile = ! empty($audit['scoring']['weightingsFile']) ? $audit['scoring']['weightingsFile'] : '';
-        $detailsReportFilename = $auditsFilesChecksum . '-phpcs-' . $this->auditStandardKey . '-details.' . $options['report'];
+        $detailsReportFilename = $auditsFilesChecksum.'-phpcs-'.$this->auditStandardKey.'-details.'.$options['report'];
         $detailsReportPath = $auditsReportsDirectory . '/' . $detailsReportFilename;
 
         if ('phpcompatibility' === strtolower($this->auditStandardKey)) {
@@ -195,8 +209,11 @@ class PhpCsAuditManager extends BaseManager
      *
      * @return array Audit results.
      */
-    public function getExistingAuditReport($options = array(), $existingAuditReports = array(), $existingAuditReportsKeys = array())
-    {
+    public function getExistingAuditReport(
+        $options = array(),
+        $existingAuditReports = array(),
+        $existingAuditReportsKeys = array()
+    ) {
 
         $options = array_merge($this->defaultOptions, $options);
         $this->auditStandardKey = $this->setAuditStandardKey($options);
@@ -204,9 +221,19 @@ class PhpCsAuditManager extends BaseManager
         $existingReport = array();
 
         $auditReportKey = "phpcs_{$this->auditStandardKey}";
-        if (in_array($auditReportKey, $existingAuditReportsKeys) && ! empty($existingAuditReports[ $auditReportKey ]) && ! array_key_exists('error', $existingAuditReports[ $auditReportKey ])) {
-            $this->output->writeln("<info>The audit report {$auditReportKey} already exists. Skipping running audit...</info>");
-            $existingReport = isset($existingAuditReports[ $auditReportKey ]) ? $existingAuditReports[ $auditReportKey ] : array();
+        if (in_array(
+            $auditReportKey,
+            $existingAuditReportsKeys
+        ) && ! empty($existingAuditReports[$auditReportKey]) && ! array_key_exists(
+            'error',
+            $existingAuditReports[$auditReportKey]
+        )) {
+            $this->output->writeln(
+                "<info>The audit report {$auditReportKey} already exists. Skipping running audit...</info>"
+            );
+            $existingReport = isset($existingAuditReports[$auditReportKey])
+                ? $existingAuditReports[$auditReportKey]
+                : array();
         }
 
         return $existingReport;
@@ -307,7 +334,10 @@ class PhpCsAuditManager extends BaseManager
     {
         try {
             $report = json_decode(file_get_contents($reportFile), true);
-            $weightings = json_decode(file_get_contents($this->settings['weightings_path'] . '/phpcs/' . $weightingsFile), true);
+            $weightings = json_decode(
+                file_get_contents($this->settings['weightings_path'].'/phpcs/'.$weightingsFile),
+                true
+            );
         } catch (\Exception $e) {
             return array();
         }

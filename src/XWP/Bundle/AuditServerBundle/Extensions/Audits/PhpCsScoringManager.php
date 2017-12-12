@@ -53,11 +53,16 @@ class PhpCsScoringManager extends BaseManager
         );
         $scoringOptions = array_merge($defaultScoringOptions, $scoringOptions);
 
-        $defaultPoints = ! empty($scoringOptions['defaultPoints']) ? $scoringOptions['defaultPoints'] : $defaultScoringOptions['defaultPoints'];
-        $weightingsFile = ! empty($scoringOptions['weightingsFile']) ? $scoringOptions['weightingsFile'] : '';
+        $defaultPoints = ! empty($scoringOptions['defaultPoints'])
+            ? $scoringOptions['defaultPoints'] : $defaultScoringOptions['defaultPoints'];
+        $weightingsFile = ! empty($scoringOptions['weightingsFile'])
+            ? $scoringOptions['weightingsFile'] : '';
 
         $report = json_decode(file_get_contents($reportFile), true);
-        $weightings = json_decode(file_get_contents($this->settings['weightings_path'] . '/phpcs/' . $weightingsFile), true);
+        $weightings = json_decode(
+            file_get_contents($this->settings['weightings_path'].'/phpcs/'.$weightingsFile),
+            true
+        );
 
         $scores = array();
 
@@ -65,7 +70,12 @@ class PhpCsScoringManager extends BaseManager
             $issuesFrequency = $this->getIssuesFrequency($report);
 
             foreach ($weightings as $category => $categoryConf) {
-                $scores[ $category ] = ! empty($issuesFrequency) ? $this->calculateScore($issuesFrequency, $categoryConf, $defaultPoints, $linesOfCode) : 100;
+                $scores[$category] = ! empty($issuesFrequency) ? $this->calculateScore(
+                    $issuesFrequency,
+                    $categoryConf,
+                    $defaultPoints,
+                    $linesOfCode
+                ) : 100;
             }
         }
 
@@ -220,7 +230,10 @@ class PhpCsScoringManager extends BaseManager
         $weightingsFile = ! empty($scoringOptions['weightingsFile']) ? $scoringOptions['weightingsFile'] : '';
 
         try {
-            $weightings = json_decode(file_get_contents($this->settings['weightings_path'] . '/phpcs/' . $weightingsFile), true);
+            $weightings = json_decode(
+                file_get_contents($this->settings['weightings_path'].'/phpcs/'.$weightingsFile),
+                true
+            );
         } catch (\Exception $e) {
             return false;
         }

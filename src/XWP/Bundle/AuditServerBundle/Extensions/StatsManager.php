@@ -122,8 +122,12 @@ class StatsManager extends BaseManager
 
         if (isset($this->stopwatchesEvents[$statsType]) && isset($this->csvWriters[$statsType])) {
             $statsInfo = [
-                'elapsedTime' => $this->helpers['stopwatch']->formatMilliseconds($this->stopwatchesEvents[$statsType]->getDuration()),
-                'memoryUsed' => $this->helpers['stopwatch']->formatBytes($this->stopwatchesEvents[$statsType]->getMemory()),
+                'elapsedTime' => $this->helpers['stopwatch']->formatMilliseconds(
+                    $this->stopwatchesEvents[$statsType]->getDuration()
+                ),
+                'memoryUsed'  => $this->helpers['stopwatch']->formatBytes(
+                    $this->stopwatchesEvents[$statsType]->getMemory()
+                ),
             ];
         }
 
@@ -144,15 +148,22 @@ class StatsManager extends BaseManager
             $statsInfo = $this->getStatsInfo($statsType);
 
 
-            if (isset($this->statsHeaders[$statsType])&& $statsType === 'fullRequest') {
+            if (isset($this->statsHeaders[$statsType]) && $statsType === 'fullRequest') {
                 $statsInfoToWrite = [
-                    isset($extraStatsInfo['sourceUrl']) ? $extraStatsInfo['sourceUrl'] : '',
-                    isset($extraStatsInfo['auditsFilesChecksum']) ? $extraStatsInfo['auditsFilesChecksum'] : '',
-                    isset($extraStatsInfo['auditsFilesDirectorySize']) ? $extraStatsInfo['auditsFilesDirectorySize'] : '',
-                    isset($extraStatsInfo['codeInfo']['cloc']['sum']['nFiles']) ? $extraStatsInfo['codeInfo']['cloc']['sum']['nFiles'] : '',
-                    isset($extraStatsInfo['codeInfo']['cloc']['sum']['code']) ? $extraStatsInfo['codeInfo']['cloc']['sum']['code'] : '',
-                    isset($statsInfo['elapsedTime']) ? $statsInfo['elapsedTime'] : '',
-                    isset($statsInfo['memoryUsed']) ? $statsInfo['memoryUsed'] : '',
+                    isset($extraStatsInfo['sourceUrl'])
+                        ? $extraStatsInfo['sourceUrl'] : '',
+                    isset($extraStatsInfo['auditsFilesChecksum'])
+                        ? $extraStatsInfo['auditsFilesChecksum'] : '',
+                    isset($extraStatsInfo['auditsFilesDirectorySize'])
+                        ? $extraStatsInfo['auditsFilesDirectorySize'] : '',
+                    isset($extraStatsInfo['codeInfo']['cloc']['sum']['nFiles'])
+                        ? $extraStatsInfo['codeInfo']['cloc']['sum']['nFiles'] : '',
+                    isset($extraStatsInfo['codeInfo']['cloc']['sum']['code'])
+                        ? $extraStatsInfo['codeInfo']['cloc']['sum']['code'] : '',
+                    isset($statsInfo['elapsedTime'])
+                        ? $statsInfo['elapsedTime'] : '',
+                    isset($statsInfo['memoryUsed'])
+                        ? $statsInfo['memoryUsed'] : '',
                 ];
 
                 $this->csvWriters[$statsType]->insertOne($statsInfoToWrite);

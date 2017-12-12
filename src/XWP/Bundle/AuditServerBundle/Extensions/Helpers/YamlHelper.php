@@ -36,7 +36,7 @@ class YamlHelper
      *
      * @var string
      */
-    protected $literal_placeholder = '___YAML_Literal_Block___';
+    protected $literalPlaceholder = '___YAML_Literal_Block___';
 
     /**
      * Indent.
@@ -50,28 +50,28 @@ class YamlHelper
      *
      * @var bool
      */
-    protected $contains_group_alias = false;
+    protected $containsGroupAlias = false;
 
     /**
      * Contains group anchor.
      *
      * @var bool
      */
-    protected $_contains_group_anchor = false;
+    protected $containsGroupAnchor = false;
 
     /**
      * Path modifier that should be applied after adding current element.
      *
      * @var array
      */
-    protected $delayed_path = array();
+    protected $delayedPath = array();
 
     /**
      * Saved groups.
      *
      * @var array
      */
-    protected $saved_groups = array();
+    protected $savedGroups = array();
 
     /**
      * Get results from string.
@@ -79,9 +79,9 @@ class YamlHelper
      * @param string $input Input yaml string.
      * @return array Results.
      */
-    function load($input)
+    public function load($input)
     {
-        return $this->load_string($input);
+        return $this->loadString($input);
     }
 
     /**
@@ -90,10 +90,10 @@ class YamlHelper
      * @param string $input Input string.
      * @return array Results.
      */
-    protected function load_string($input)
+    protected function loadString($input)
     {
-        $source = $this->load_from_string($input);
-        return $this->load_with_source($source);
+        $source = $this->loadFromString($input);
+        return $this->loadWithSource($source);
     }
 
     /**
@@ -102,7 +102,7 @@ class YamlHelper
      * @param string $input String input.
      * @return array Array of lines.
      */
-    function load_from_string($input)
+    protected function loadFromString($input)
     {
         $lines = explode("\n", $input);
         foreach ($lines as $k => $_) {
@@ -117,7 +117,7 @@ class YamlHelper
      * @param string $value Value.
      * @return bool False if incorrect.
      */
-    protected function check_keys_in_value($value)
+    protected function checkKeysInValue($value)
     {
         if (false === strchr('[{"\'', $value[0])) {
             if (false !== strchr($value, ': ')) {
@@ -133,7 +133,7 @@ class YamlHelper
      * @param string $line Line.
      * @return array Pair.
      */
-    public function return_key_value_pair($line)
+    public function returnKeyValuePair($line)
     {
         $array = array();
         if (strpos($line, ': ')) {
@@ -149,13 +149,13 @@ class YamlHelper
                 $explode = explode(': ', $line);
                 $key = trim(array_shift($explode));
                 $value = trim(implode(': ', $explode));
-                if (false === $this->check_keys_in_value($value)) {
+                if (false === $this->checkKeysInValue($value)) {
                     return array();
                 }
             }
 
             // Set the type of the value. Int, string, etc.
-            $value = $this->to_type($value);
+            $value = $this->toType($value);
             if ('0' === $key) {
                 $key = '__!YAMLZero';
             }
@@ -172,7 +172,7 @@ class YamlHelper
      * @param string $value Value.
      * @return mixed
      */
-    protected function to_type($value)
+    protected function toType($value)
     {
         if ('' === $value) {
             return $value;
@@ -219,12 +219,12 @@ class YamlHelper
                 return array();
             }
 
-            $explode = $this->inline_escape($inner_value);
+            $explode = $this->inlineEscape($inner_value);
 
             // Propagate value array.
             $value = array();
             foreach ($explode as $v) {
-                $value[] = $this->to_type($v);
+                $value[] = $this->toType($v);
             }
         }
         return $value;
@@ -238,7 +238,7 @@ class YamlHelper
      * @param string $inline Inline.
      * @return array Array.
      */
-    protected function inline_escape($inline)
+    protected function inlineEscape($inline)
     {
 
         $seqs = array();
@@ -371,7 +371,7 @@ class YamlHelper
      * @param array $source Source.
      * @return array Result.
      */
-    function load_with_source($source)
+    protected function loadWithSource($source)
     {
         if (empty($source)) {
             return array();
@@ -385,29 +385,29 @@ class YamlHelper
             $line = $source[ $i ];
 
             $this->indent = strlen($line) - strlen(ltrim($line));
-            $tempPath = $this->get_parent_path_by_indent($this->indent);
-            $line = $this->strip_indent($line, $this->indent);
-            if ($this->is_comment($line)) {
+            $tempPath = $this->getParentPathByIndent($this->indent);
+            $line = $this->stripIndent($line, $this->indent);
+            if ($this->isComment($line)) {
                 continue;
             }
-            if ($this->is_empty($line)) {
+            if ($this->isEmpty($line)) {
                 continue;
             }
             $this->path = $tempPath;
 
-            $literal_block_style = $this->starts_literal_block($line);
+            $literal_block_style = $this->startsLiteralBlock($line);
             if ($literal_block_style) {
                 $line = rtrim($line, $literal_block_style . " \n");
                 $literal_block = '';
-                $line .= $this->literal_placeholder;
+                $line .= $this->literalPlaceholder;
 
-                while (++$i < $cnt && $this->literal_block_continues($source[ $i ], $this->indent)) {
-                    $literal_block = $this->add_literal_line($literal_block, $source[ $i ], $literal_block_style);
+                while (++$i < $cnt && $this->literalBlockContinues($source[ $i ], $this->indent)) {
+                    $literal_block = $this->addLiteralLine($literal_block, $source[ $i ], $literal_block_style);
                 }
                 $i--;
             }
 
-            while (++$i < $cnt && $this->greedily_need_next_line($line)) {
+            while (++$i < $cnt && $this->greedilyNeedNextLine($line)) {
                 $line = rtrim($line, " \n\t\r") . ' ' . ltrim($source[ $i ], " \t");
             }
             $i--;
@@ -418,22 +418,22 @@ class YamlHelper
                 }
             }
 
-            $line_array = $this->parse_line($line);
+            $line_array = $this->parseLine($line);
 
             if ($literal_block_style) {
                 if (! isset($literal_block)) {
                     $literal_block = '';
                 }
-                $line_array = $this->revert_literal_placeholder($line_array, $literal_block);
+                $line_array = $this->revertLiteralPlaceholder($line_array, $literal_block);
             }
 
-            $this->add_array($line_array, $this->indent);
+            $this->addArray($line_array, $this->indent);
 
-            foreach ($this->delayed_path as $indent => $delayed_path) {
+            foreach ($this->delayedPath as $indent => $delayed_path) {
                 $this->path[ $indent ] = $delayed_path;
             }
 
-            $this->delayed_path = array();
+            $this->delayedPath = array();
         }
         return $this->result;
     }
@@ -445,12 +445,12 @@ class YamlHelper
      * @param string $literal_block Literal block.
      * @return array Reversed line array.
      */
-    function revert_literal_placeholder($line_array, $literal_block)
+    protected function revertLiteralPlaceholder($line_array, $literal_block)
     {
         foreach ($line_array as $k => $_) {
             if (is_array($_)) {
-                $line_array[ $k ] = $this->revert_literal_placeholder($_, $literal_block);
-            } elseif (substr($_, -1 * strlen($this->literal_placeholder)) === $this->literal_placeholder) {
+                $line_array[ $k ] = $this->revertLiteralPlaceholder($_, $literal_block);
+            } elseif (substr($_, -1 * strlen($this->literalPlaceholder)) === $this->literalPlaceholder) {
                 $line_array[ $k ] = rtrim($literal_block, " \r\n");
             }
         }
@@ -464,7 +464,7 @@ class YamlHelper
      * @param int    $indent Indent.
      * @return string Stripped line.
      */
-    protected static function strip_indent($line, $indent = -1)
+    protected static function stripIndent($line, $indent = -1)
     {
         if (-1 === $indent) {
             $indent = strlen($line) - strlen(ltrim($line));
@@ -478,7 +478,7 @@ class YamlHelper
      * @param int $indent Indent.
      * @return array|string Parent path.
      */
-    protected function get_parent_path_by_indent($indent)
+    protected function getParentPathByIndent($indent)
     {
         if (0 === $indent) {
             return array();
@@ -500,7 +500,7 @@ class YamlHelper
      * @param string $line Line.
      * @return bool If is comment.
      */
-    protected static function is_comment($line)
+    protected static function isComment($line)
     {
         if (! $line) {
             return false;
@@ -520,7 +520,7 @@ class YamlHelper
      * @param string $line Line.
      * @return bool If is empty line.
      */
-    protected static function is_empty($line)
+    protected static function isEmpty($line)
     {
         return ( '' === trim($line) );
     }
@@ -531,7 +531,7 @@ class YamlHelper
      * @param string $line Line.
      * @return bool|string If starts / last character.
      */
-    protected static function starts_literal_block($line)
+    protected static function startsLiteralBlock($line)
     {
         $last_char = substr(trim($line), -1);
         if ('>' !== $last_char && '|' !== $last_char) {
@@ -555,7 +555,7 @@ class YamlHelper
      * @param int    $line_indent Indent.
      * @return bool True/false.
      */
-    protected function literal_block_continues($line, $line_indent)
+    protected function literalBlockContinues($line, $line_indent)
     {
         if (! trim($line)) {
             return true;
@@ -575,11 +575,11 @@ class YamlHelper
      * @param int    $indent Indent.
      * @return string Line.
      */
-    protected function add_literal_line($literal_block, $line, $literal_block_style, $indent = -1)
+    protected function addLiteralLine($literal_block, $line, $literal_block_style, $indent = -1)
     {
-        $line = self::strip_indent($line, $indent);
+        $line = self::stripIndent($line, $indent);
         if ('|' !== $literal_block_style) {
-            $line = self::strip_indent($line);
+            $line = self::stripIndent($line);
         }
         $line = rtrim($line, "\r\n\t ") . "\n";
         if ('|' === $literal_block_style) {
@@ -603,7 +603,7 @@ class YamlHelper
      * @param string $line Line.
      * @return bool True/false.
      */
-    protected static function greedily_need_next_line($line)
+    protected static function greedilyNeedNextLine($line)
     {
         $line = trim($line);
         if (! strlen($line)) {
@@ -628,11 +628,11 @@ class YamlHelper
      * @param int   $incoming_indent Incoming indent.
      * @return bool|void
      */
-    protected function add_array($incoming_data, $incoming_indent)
+    protected function addArray($incoming_data, $incoming_indent)
     {
 
         if (1 < count($incoming_data)) {
-            return $this->add_array_inline($incoming_data, $incoming_indent);
+            return $this->addArrayInline($incoming_data, $incoming_indent);
         }
 
         $key = key($incoming_data);
@@ -642,7 +642,7 @@ class YamlHelper
         }
 
         // Shortcut for root-level values.
-        if (0 === $incoming_indent && ! $this->contains_group_alias && ! $this->_contains_group_anchor) {
+        if (0 === $incoming_indent && ! $this->containsGroupAlias && ! $this->containsGroupAnchor) {
             if ($key || '' === $key || '0' === $key) {
                 $this->result[ $key ] = $value;
             } else {
@@ -664,9 +664,9 @@ class YamlHelper
             $history[] = $_arr;
         }
 
-        if ($this->contains_group_alias) {
-            $value = $this->reference_contents_by_alias($this->contains_group_alias);
-            $this->contains_group_alias = false;
+        if ($this->containsGroupAlias) {
+            $value                    = $this->referenceContentsByAlias($this->containsGroupAlias);
+            $this->containsGroupAlias = false;
         }
 
         // Adding string or numeric key to the innermost level or $this->arr.
@@ -706,15 +706,15 @@ class YamlHelper
 
         $this->path[ $incoming_indent ] = $key;
 
-        if ($this->_contains_group_anchor) {
-            $this->saved_groups[ $this->_contains_group_anchor ] = $this->path;
+        if ($this->containsGroupAnchor) {
+            $this->savedGroups[ $this->containsGroupAnchor ] = $this->path;
             if (is_array($value)) {
                 $k = key($value);
                 if (! is_int($k)) {
-                    $this->saved_groups[ $this->_contains_group_anchor ][ $incoming_indent + 2 ] = $k;
+                    $this->savedGroups[ $this->containsGroupAnchor ][ $incoming_indent + 2 ] = $k;
                 }
             }
-            $this->_contains_group_anchor = false;
+            $this->containsGroupAnchor = false;
         }
     }
 
@@ -724,15 +724,15 @@ class YamlHelper
      * @param string $alias Alias.
      * @return array|mixed
      */
-    protected function reference_contents_by_alias($alias)
+    protected function referenceContentsByAlias($alias)
     {
         $value = '';
         do {
-            if (! isset($this->saved_groups[ $alias ])) {
+            if (! isset($this->savedGroups[ $alias ])) {
                 echo "Bad group name: $alias.";
                 break;
             }
-            $groupPath = $this->saved_groups[ $alias ];
+            $groupPath = $this->savedGroups[ $alias ];
             $value = $this->result;
             foreach ($groupPath as $k) {
                 $value = $value[ $k ];
@@ -749,7 +749,7 @@ class YamlHelper
      * @return array Array.
      * @param string $line A line from the YAML file.
      */
-    protected function parse_line($line)
+    protected function parseLine($line)
     {
         if (! $line) {
             return array();
@@ -759,29 +759,29 @@ class YamlHelper
             return array();
         }
 
-        $group = $this->node_contains_group($line);
+        $group = $this->nodeContainsGroup($line);
         if ($group) {
-            $this->add_group($line, $group);
-            $line = $this->strip_group($line, $group);
+            $this->addGroup($line, $group);
+            $line = $this->stripGroup($line, $group);
         }
 
-        if ($this->starts_mapped_sequence($line)) {
-            return $this->return_mapped_sequence($line);
+        if ($this->startsMappedSequence($line)) {
+            return $this->returnMappedSequence($line);
         }
 
-        if ($this->starts_mapped_value($line)) {
-            return $this->return_mapped_value($line);
+        if ($this->startsMappedValue($line)) {
+            return $this->returnMappedValue($line);
         }
 
-        if ($this->is_array_element($line)) {
-            return $this->return_array_element($line);
+        if ($this->isArrayElement($line)) {
+            return $this->returnArrayElement($line);
         }
 
-        if ($this->is_plain_array($line)) {
-            return $this->return_plain_array($line);
+        if ($this->isPlainArray($line)) {
+            return $this->returnPlainArray($line);
         }
 
-        return $this->return_key_value_pair($line);
+        return $this->returnKeyValuePair($line);
     }
 
     /**
@@ -791,7 +791,7 @@ class YamlHelper
      * @param int   $indent Indent.
      * @return bool If add.
      */
-    protected function add_array_inline($array, $indent)
+    protected function addArrayInline($array, $indent)
     {
         $common_group_path = $this->path;
         if (empty($array)) {
@@ -799,7 +799,7 @@ class YamlHelper
         }
 
         foreach ($array as $k => $_) {
-            $this->add_array(array(
+            $this->addArray(array(
                 $k => $_,
             ), $indent);
             $this->path = $common_group_path;
@@ -813,7 +813,7 @@ class YamlHelper
      * @param string $line Line.
      * @return bool If contains.
      */
-    protected function node_contains_group($line)
+    protected function nodeContainsGroup($line)
     {
         $symbols_for_reference = 'A-z0-9_\-';
         if (false === strpos($line, '&') && false === strpos($line, '*')) {
@@ -843,13 +843,13 @@ class YamlHelper
      * @param string     $line Line.
      * @param array|bool $group Group.
      */
-    protected function add_group($line, $group)
+    protected function addGroup($line, $group)
     {
         if ('&' === $group[0]) {
-            $this->_contains_group_anchor = substr($group, 1);
+            $this->containsGroupAnchor = substr($group, 1);
         }
         if ('*' === $group[0]) {
-            $this->contains_group_alias = substr($group, 1);
+            $this->containsGroupAlias = substr($group, 1);
         }
     }
 
@@ -860,7 +860,7 @@ class YamlHelper
      * @param array|bool $group Group.
      * @return string Line.
      */
-    protected function strip_group($line, $group)
+    protected function stripGroup($line, $group)
     {
         $line = trim(str_replace($group, '', $line));
         return $line;
@@ -872,7 +872,7 @@ class YamlHelper
      * @param string $line Line.
      * @return bool If starts mapped sequence.
      */
-    protected function starts_mapped_sequence($line)
+    protected function startsMappedSequence($line)
     {
         return ( '- ' === substr($line, 0, 2) && ':' === substr($line, -1, 1) );
     }
@@ -883,12 +883,12 @@ class YamlHelper
      * @param string $line Line.
      * @return array Mapped sequence.
      */
-    protected function return_mapped_sequence($line)
+    protected function returnMappedSequence($line)
     {
-        $array = array();
-        $key = self::unquote(trim(substr($line, 1, -1)));
-        $array[ $key ] = array();
-        $this->delayed_path = array(
+        $array             = array();
+        $key               = self::unquote(trim(substr($line, 1, -1)));
+        $array[ $key ]     = array();
+        $this->delayedPath = array(
             strpos($line, $key) + $this->indent => $key,
         );
         return array( $array );
@@ -900,9 +900,9 @@ class YamlHelper
      * @param string $line Line.
      * @return array Mapped value.
      */
-    protected function return_mapped_value($line)
+    protected function returnMappedValue($line)
     {
-        $this->check_keys_in_value($line);
+        $this->checkKeysInValue($line);
         $array = array();
         $key = self::unquote(trim(substr($line, 0, -1)));
         $array[ $key ] = '';
@@ -915,7 +915,7 @@ class YamlHelper
      * @param string $line Line.
      * @return bool If starts mapped value.
      */
-    protected function starts_mapped_value($line)
+    protected function startsMappedValue($line)
     {
         return ( ':' === substr($line, -1, 1) );
     }
@@ -926,7 +926,7 @@ class YamlHelper
      * @param string $line Line.
      * @return bool If is array element.
      */
-    protected function is_array_element($line)
+    protected function isArrayElement($line)
     {
         if (! $line || ! is_scalar($line)) {
             return false;
@@ -949,16 +949,16 @@ class YamlHelper
      * @param string $line Line.
      * @return array Array element.
      */
-    protected function return_array_element($line)
+    protected function returnArrayElement($line)
     {
         if (strlen($line) <= 1) {
             return array( array() );
         }
         $array = array();
         $value = trim(substr($line, 1));
-        $value = $this->to_type($value);
-        if ($this->is_array_element($value)) {
-            $value = $this->return_array_element($value);
+        $value = $this->toType($value);
+        if ($this->isArrayElement($value)) {
+            $value = $this->returnArrayElement($value);
         }
         $array[] = $value;
         return $array;
@@ -970,7 +970,7 @@ class YamlHelper
      * @param string $line Line.
      * @return bool If is plain array.
      */
-    protected function is_plain_array($line)
+    protected function isPlainArray($line)
     {
         return ( '[' === $line[0] && ']' === substr($line, -1, 1) );
     }
@@ -981,9 +981,9 @@ class YamlHelper
      * @param string $line Line.
      * @return array Plain array.
      */
-    protected function return_plain_array($line)
+    protected function returnPlainArray($line)
     {
-        return $this->to_type($line);
+        return $this->toType($line);
     }
 
     /**

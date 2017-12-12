@@ -13,10 +13,6 @@ class CodeIdentityManager extends BaseManager
 {
     /**
      * Constructor.
-     *
-     * @param  array $settings Settings.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -40,7 +36,7 @@ class CodeIdentityManager extends BaseManager
             return $codeInfo;
         }
 
-        $plugin_theme_header = $this->get_plugin_theme_header($auditsFilesDirectory);
+        $plugin_theme_header = $this->getPluginThemeHeader($auditsFilesDirectory);
 
         if (isset($plugin_theme_header['ThemeURI'])) {
             $codeInfo['type'] = 'theme';
@@ -71,7 +67,7 @@ class CodeIdentityManager extends BaseManager
      *
      * @return array $header
      */
-    public function get_plugin_theme_header($auditsFilesDirectory, $directory_scanned = false)
+    public function getPluginThemeHeader($auditsFilesDirectory, $directory_scanned = false)
     {
 
         $files = array_diff(scandir($auditsFilesDirectory), array( '.', '..' ));
@@ -100,11 +96,11 @@ class CodeIdentityManager extends BaseManager
                 $file_extension = isset($file_parts['extension']) ? $file_parts['extension'] : '';
 
                 if (is_dir($file_path) && ! $directory_scanned) {
-                    $header = $this->get_plugin_theme_header($file_path, true);
+                    $header = $this->getPluginThemeHeader($file_path, true);
                 } elseif ($directory_scanned && 'style.css' === $file && is_readable($file_path)) {
-                    $header = $this->get_theme_header($file_path);
+                    $header = $this->getThemeHeader($file_path);
                 } elseif ('php' === $file_extension && is_readable($file_path)) {
-                    $header = $this->get_plugin_header($file_path);
+                    $header = $this->getPluginHeader($file_path);
                 }
             }
         }
@@ -118,7 +114,7 @@ class CodeIdentityManager extends BaseManager
      * @param string $file file path.
      * @return array $header.
      */
-    function get_theme_header($file)
+    protected function getThemeHeader($file)
     {
         $default_headers = array(
             'Name' => 'Theme Name',
@@ -131,7 +127,7 @@ class CodeIdentityManager extends BaseManager
             'DomainPath' => 'Domain Path',
         );
 
-        return $this->get_file_header($file, $default_headers);
+        return $this->getFileHeader($file, $default_headers);
     }
 
     /**
@@ -140,7 +136,7 @@ class CodeIdentityManager extends BaseManager
      * @param string $file file path.
      * @return array $header.
      */
-    function get_plugin_header($file)
+    protected function getPluginHeader($file)
     {
         $default_headers = array(
             'Name' => 'Plugin Name',
@@ -153,7 +149,7 @@ class CodeIdentityManager extends BaseManager
             'DomainPath' => 'Domain Path',
         );
 
-        return $this->get_file_header($file, $default_headers);
+        return $this->getFileHeader($file, $default_headers);
     }
 
     /**
@@ -164,7 +160,7 @@ class CodeIdentityManager extends BaseManager
      * @param array $default_headers Default header for theme or plugin.
      * @return array|boolean $all_headers.
      */
-    function get_file_header($file, $default_headers)
+    protected function getFileHeader($file, $default_headers)
     {
         $opened_file = fopen($file, 'r');
 

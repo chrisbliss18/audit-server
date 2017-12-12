@@ -165,7 +165,10 @@ class LaunchAuditServerCommand extends EndlessContainerAwareCommand
                 // Themes will get a Lighthouse Audit if AWS_SQS_LH_QUEUE_ENABLED is set to `yes`.
                 $lhQueueEnabled = $this->awsSqsLhManager->getSetting('queue_enabled', 'no');
                 if ('yes' === strtolower($lhQueueEnabled) && 'theme' === $auditsRequest['codeInfo']['type']) {
-                    if (empty($existingAuditReports['lighthouse']) || array_key_exists('error', $existingAuditReports['lighthouse'])) {
+                    if (empty($existingAuditReports['lighthouse']) || array_key_exists(
+                        'error',
+                        $existingAuditReports['lighthouse']
+                    )) {
                         $sqsTask = $this->auditsManager->prepareThemeTaskForSQS($originalAuditsRequest, $auditsRequest);
                         if (! empty($sqsTask) && $this->awsSqsLhManager->createAuditTask($sqsTask)) {
                             $output->writeln('<info>Theme submitted for Lighthouse Audit.</info>');
@@ -173,7 +176,9 @@ class LaunchAuditServerCommand extends EndlessContainerAwareCommand
                             $output->writeln('<info>Theme could not be submitted for Lighthouse Audit.</info>');
                         }
                     } else {
-                        $output->writeln('<info>The Lighthouse audit report already exists. Skipping running audit...</info>');
+                        $output->writeln(
+                            '<info>The Lighthouse audit report already exists. Skipping running audit...</info>'
+                        );
                     }
                 }
 
@@ -190,14 +195,24 @@ class LaunchAuditServerCommand extends EndlessContainerAwareCommand
 
         if (! empty($auditsRequestReports['results']) && ! empty($auditsRequest['responseApiEndpoint'])) {
             try {
-                $payload = $this->apiManager->createPayload($auditsRequest, $auditsRequestReports, $auditsRequestStatus);
+                $payload = $this->apiManager->createPayload(
+                    $auditsRequest,
+                    $auditsRequestReports,
+                    $auditsRequestStatus
+                );
 
                 /**
                  * If the request is for a collection endpoint, but we have an existing audit
                  * then we need to update the endpoint for the API payload.
                  */
-                if (! empty($existingAuditReports) && ApiManager::is_collection_endpoint($auditsRequest['responseApiEndpoint']) && ! empty($auditsRequest['auditsFilesChecksum'])) {
-                    $auditsRequest['responseApiEndpoint'] = sprintf('%s/%s', $auditsRequest['responseApiEndpoint'], $auditsRequest['auditsFilesChecksum']);
+                if (! empty($existingAuditReports) && ApiManager::isCollectionEndpoint(
+                    $auditsRequest['responseApiEndpoint']
+                ) && ! empty($auditsRequest['auditsFilesChecksum'])) {
+                    $auditsRequest['responseApiEndpoint'] = sprintf(
+                        '%s/%s',
+                        $auditsRequest['responseApiEndpoint'],
+                        $auditsRequest['auditsFilesChecksum']
+                    );
                 }
 
                 $apiResponse = $this->apiManager->sendPayload($auditsRequest['responseApiEndpoint'], $payload);
@@ -215,7 +230,7 @@ class LaunchAuditServerCommand extends EndlessContainerAwareCommand
         if ($this->isStatsEnabled) {
             $this->statsManager->stopStatsRecording('fullRequest');
             $statsInfo = $this->statsManager->getStatsInfo('fullRequest');
-            $extraInfo = ' (Duration: ' . $statsInfo['elapsedTime'] . ', Memory Usage: ' . $statsInfo['memoryUsed'] . ')';
+            $extraInfo = ' (Duration: '.$statsInfo['elapsedTime'].', Memory Usage: '.$statsInfo['memoryUsed'].')';
             $this->statsManager->writeStats('fullRequest', $auditsRequest);
         }
 
