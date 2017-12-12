@@ -31,7 +31,8 @@
     "aws/aws-sdk-php": "^3.22",
     "league/csv": "^8.0",
     "wp-coding-standards/wpcs": "0.14.0",
-    "wimg/php-compatibility": "8.0.1"
+    "wimg/php-compatibility": "8.0.1",
+    "oomphinc/composer-installers-extender": "1.1.2"
   },
   "require-dev": {
     "sensio/generator-bundle": "^3.0",
@@ -52,6 +53,7 @@
     ]
   },
   "extra": {
+    "installer-types": ["phpcodesniffer-standard"],
     "installer-paths": {
       "audit-standards/phpcs/{$name}/": ["type:phpcodesniffer-standard"]
     },

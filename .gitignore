@@ -13,3 +13,6 @@
 !var/SymfonyRequirements.php
 /vendor/
 /web/bundles/
+
+audit-standards/phpcs/php-compatibility/
+audit-standards/phpcs/wpcs/
