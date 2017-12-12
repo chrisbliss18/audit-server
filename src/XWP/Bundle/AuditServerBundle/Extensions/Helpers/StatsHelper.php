@@ -12,21 +12,21 @@ use League\Csv\Writer;
  */
 class StatsHelper
 {
-	protected $statsPath = 'tmp';
+    protected $statsPath = 'tmp';
 
-	protected $writer = null;
+    protected $writer = null;
 
-	public function setStatsPath($settings)
-	{
-		$this->statsPath = isset($settings['stats_path']) ? $settings['stats_path'] : 'tmp';
-	}
+    public function setStatsPath($settings)
+    {
+        $this->statsPath = isset($settings['stats_path']) ? $settings['stats_path'] : 'tmp';
+    }
 
-	public function createNewWriter($filename, $path = '')
-	{
-		if (empty($path)) {
-			$path = $this->statsPath;
-		}
+    public function createNewWriter($filename, $path = '')
+    {
+        if (empty($path)) {
+            $path = $this->statsPath;
+        }
 
-		return Writer::createFromPath(new \SplFileObject($this->statsPath . '/' . $filename, 'a+'), 'w');
-	}
+        return Writer::createFromPath(new \SplFileObject($this->statsPath . '/' . $filename, 'a+'), 'w');
+    }
 }
