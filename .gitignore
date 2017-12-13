@@ -14,5 +14,10 @@
 /vendor/
 /web/bundles/
 
+# Docker
+.env
+
+# Composer
 audit-standards/phpcs/php-compatibility/
 audit-standards/phpcs/wpcs/
+vendor
