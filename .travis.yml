@@ -1,0 +1,31 @@
+sudo: required
+
+notifications:
+    email:
+        on_success: never
+        on_failure: change
+
+language:
+    - php
+
+php:
+    - 7.1.3
+
+env:
+    global:
+        - BUILD_VERSION=0.1.0
+
+script:
+    - ${TRAVIS_BUILD_DIR}/bin/composer
+
+deploy:
+    - provider: script
+      script: bin/deploy
+      skip_cleanup: true
+      on:
+        branch: master
+
+notifications:
+    slack:
+        rooms:
+            secure: w4d4GsT+16JkhGqF9fuA5sGcxdwWcUrU5vcRe7cE3551UhlbevcF1mAirkMmzFl6KG76UFlmGWa+jQQemFJ57lYQ4hYuIiym5ZrU2c2W7ehAdnVinop4J5riUozE4+HoCYKJEHGGcHjgC69l+1B9afxz/ZJUInuSK/agCq+kLdadxwgoYl0XfWkkqclc46LVUPRBYAJKPL1e6+Ku7dCVYqTX3G+mnSy98fXJmSbA8t9u3Heq/5YUalkuXUo8RtmeQbUp/c2MMX4RJxTwxxhZGqqz6LdFcqC7utQgAr3/nQ+vZN2H6GY3sPDJIoltrG725pGy85S/PWNwTjFZjECeCZaaVyBqgAOKoP0zIHwxUzK8zwNAbmb57fw4rf/C9O4oaqwQU7YXn8OzxKUQUyL3mHB7WHx1ug0Wulmqc5eIqXBrj0aqKUZdxOTjzgKPiADgoZIZAY12lzCVY0L/DQdP8YBHUyDutJ7QJR/icR/w6UjWoc2wiG/OhIsnRCYR5zpXAF8RNo4LQ55EzdqmRRT1IkWrrmsiG1zK/u6Tfvvw19YykICHnRYcAM1198Yj92bnxsJOtruIRkWEJmugJuY6T4X257+mIuuLW9oaNv8c0UYaPszQZOcDAEZjSYLAigi0rA0bNohidWfU5sRa2zlyCd9Olek0FHkH1wW8u6y1OBk=

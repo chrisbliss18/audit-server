@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -e
+set -v
+
+REPO_REGION=us-west-2
+REPO_TAG=$(if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi)
+
+# Build, tag, and push image to ECR
+function image_to_ecr {
+    QUERY="repositories[?repositoryName==\`$1\`]"
+    REPO=$(aws ecr describe-repositories --region $REPO_REGION --query $QUERY | sed 's/[][]//g')
+    if [[ -z "${REPO// }" ]]; then
+        aws ecr create-repository --repository-name $1 --region $REPO_REGION
+    fi
+
+    # Build tags, and push branch
+    docker build -t $1:$BUILD_VERSION -t $1:$REPO_TAG -f $2 $3
+    docker tag $1:$REPO_TAG $AWS_ACCOUNT_NUMBER.dkr.ecr.$REPO_REGION.amazonaws.com/$1:$REPO_TAG
+    docker push $AWS_ACCOUNT_NUMBER.dkr.ecr.$REPO_REGION.amazonaws.com/$1:$REPO_TAG
+
+    # Only tag & push build version for production image
+    if [ "$TRAVIS_BRANCH" == "master" ]; then
+        docker tag $1:$BUILD_VERSION $AWS_ACCOUNT_NUMBER.dkr.ecr.$REPO_REGION.amazonaws.com/$1:$BUILD_VERSION
+        docker push $AWS_ACCOUNT_NUMBER.dkr.ecr.$REPO_REGION.amazonaws.com/$1:$BUILD_VERSION
+    fi
+}
+
+# Install ASW CLI
+pip install --user awscli
+
+# Add AWS CLI to the PATH
+export PATH=$PATH:$HOME/.local/bin
+
+# Login to ECR
+eval $(aws ecr get-login --region $REPO_REGION)
+
+# Build and push images to ECR
+image_to_ecr tide/audit-server ./docker/Dockerfile .

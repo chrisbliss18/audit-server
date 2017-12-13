@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Setting API host in /etc/hosts when on dev
+DOCKER_HOST_IP=`/sbin/ip route|awk '/default/ { print $3 }'`
+MATCHES_IN_HOSTS="$(grep -n $TIDE_API_HOST /etc/hosts | cut -f1 -d:)"
+
+HOST_ENTRY="${DOCKER_HOST_IP} ${TIDE_API_HOST}"
+
+if [ -z "$MATCHES_IN_HOSTS" ] && [ $TIDE_ENV = "dev" ]
+then
+  echo "$HOST_ENTRY" >> /etc/hosts
+fi
