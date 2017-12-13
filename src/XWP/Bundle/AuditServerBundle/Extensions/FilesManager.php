@@ -130,7 +130,9 @@ class FilesManager extends BaseManager
      */
     public function generateFilesList($directory)
     {
-        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \RecursiveDirectoryIterator::SKIP_DOTS));
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($directory, \RecursiveDirectoryIterator::SKIP_DOTS)
+        );
 
         $processed_files = array();
 
@@ -214,7 +216,9 @@ class FilesManager extends BaseManager
             $objects = scandir($dir);
             foreach ($objects as $object) {
                 if ($object != '.' && $object != '..') {
-                    (filetype($dir . '/' . $object) == 'dir') ? $this->deleteDirectory($dir . '/' . $object) : unlink($dir . '/' . $object);
+                    (filetype($dir.'/'.$object) == 'dir') ? $this->deleteDirectory($dir.'/'.$object) : unlink(
+                        $dir.'/'.$object
+                    );
                 }
             }
             reset($objects);

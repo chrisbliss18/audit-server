@@ -120,22 +120,29 @@ class ApiManager extends BaseManager
         $codeInfo = CodeIdentityManager::transformCodeInfo($auditsRequest['codeInfo']);
 
         // Ensure the payload includes basic plugin information.
-        $payload['title']      = ! empty($codeInfo['details']['name']) ? $codeInfo['details']['name'] : $auditsRequest['title'];
-        $payload['content']    = ! empty($codeInfo['details']['description']) ? $codeInfo['details']['description'] : $auditsRequest['content'];
-        $payload['version']    = ! empty($codeInfo['details']['version']) ? $codeInfo['details']['version'] : '';
-        $payload['standards']  = ! empty($auditsRequest['standards']) ? $auditsRequest['standards'] : '';
-        $payload['visibility'] = ! empty($auditsRequest['visibility']) ? $auditsRequest['visibility'] : 'private';
+        $payload['title']      = ! empty($codeInfo['details']['name'])
+            ? $codeInfo['details']['name'] : $auditsRequest['title'];
+        $payload['content']    = ! empty($codeInfo['details']['description'])
+            ? $codeInfo['details']['description'] : $auditsRequest['content'];
+        $payload['version']    = ! empty($codeInfo['details']['version'])
+            ? $codeInfo['details']['version'] : '';
+        $payload['standards']  = ! empty($auditsRequest['standards'])
+            ? $auditsRequest['standards'] : '';
+        $payload['visibility'] = ! empty($auditsRequest['visibility'])
+            ? $auditsRequest['visibility'] : 'private';
         $payload['sourceUrl']  = $auditsRequest['sourceUrl'];
         $payload['sourceType'] = $auditsRequest['sourceType'];
 
         // We're setting the author to the client that requested the audit.
         // @todo As future requirements re projects and ownership arise this needs to be refactored.
-        $payload['requestClient'] = ! empty($auditsRequest['requestClient']) ? $auditsRequest['requestClient'] : 'audit-server';
+        $payload['requestClient'] = ! empty($auditsRequest['requestClient'])
+            ? $auditsRequest['requestClient'] : 'audit-server';
 
         // Assign the project identifier to the audit_project taxonomy.
         // This will come from codeInfo::textdomain usually, but may come from the original payload too.
         if (empty($auditsRequest['audit_project'])) {
-            // Note, we're using a separate `project` rest field so that we can set terms by name and not be restricted to ID.
+            // Note, we're using a separate `project` rest field so that we can set terms by name
+            // and not be restricted to ID.
             $slug = ! empty($auditsRequest['slug']) ? $auditsRequest['slug'] : $codeInfo['details']['textdomain'];
             $payload['project'] = array(
                 $slug,
@@ -185,7 +192,9 @@ class ApiManager extends BaseManager
             return json_decode($apiResponse->getBody(), true);
         }
 
-        throw new \Exception("Invalid response from Tide API on POST '$apiResponseEndpoint': " . $apiResponse->getStatusCode());
+        throw new \Exception(
+            "Invalid response from Tide API on POST '$apiResponseEndpoint': ".$apiResponse->getStatusCode()
+        );
     }
 
     /**
@@ -198,12 +207,20 @@ class ApiManager extends BaseManager
     public function checkForExistingAuditReports($auditsRequest)
     {
 
-        if (! self::is_collection_endpoint($auditsRequest['responseApiEndpoint'])) {
+        if (! self::isCollectionEndpoint($auditsRequest['responseApiEndpoint'])) {
             // Lookup by checksum not id.
-            $apiResponseEndpoint = preg_replace('/([\d]+)$/', $auditsRequest['auditsFilesChecksum'], $auditsRequest['responseApiEndpoint']);
+            $apiResponseEndpoint = preg_replace(
+                '/([\d]+)$/',
+                $auditsRequest['auditsFilesChecksum'],
+                $auditsRequest['responseApiEndpoint']
+            );
         } else {
             // Look for existing result by adding checksum.
-            $apiResponseEndpoint = sprintf('%s/%s', $auditsRequest['responseApiEndpoint'], $auditsRequest['auditsFilesChecksum']);
+            $apiResponseEndpoint = sprintf(
+                '%s/%s',
+                $auditsRequest['responseApiEndpoint'],
+                $auditsRequest['auditsFilesChecksum']
+            );
         }
 
         try {
@@ -225,7 +242,7 @@ class ApiManager extends BaseManager
      *
      * @return bool
      */
-    public static function is_collection_endpoint($endpoint)
+    public static function isCollectionEndpoint($endpoint)
     {
         return ! preg_match('/[a-fA-F\d]{64}/', $endpoint) && ! preg_match('/([\d]+)$/', $endpoint);
     }

@@ -126,7 +126,9 @@ class AuditsManager extends BaseManager
     public function prepareForAudits($originalAuditsRequest)
     {
         $originalAuditsRequest = $this->helpers['array']->camelCaseKeys($originalAuditsRequest);
-        $this->output->writeln("\n<info>Audits request found. Preparing... " . $originalAuditsRequest['sourceUrl'] . "</info>");
+        $this->output->writeln(
+            "\n<info>Audits request found. Preparing... " . $originalAuditsRequest['sourceUrl'] . "</info>"
+        );
         $defaultAuditsRequest = array(
             'sourceUrl'                => '',
             'sourceType'               => '',
@@ -180,10 +182,14 @@ class AuditsManager extends BaseManager
         } else {
             $this->filesManager->createDirectory($auditsReportsDirectory);
 
-            $auditsRequest['auditsFilesChecksum']      = $this->filesManager->generateChecksum($auditsFilesDirectory);
-            $auditsRequest['auditsFilesDirectorySize'] = $this->filesManager->getDirectorySize($auditsFilesDirectory);
-            $auditsRequest['codeInfo']                 = $this->codeIdentityManager->getWordPressCodeInfo($auditsFilesDirectory);
-            $auditsRequest['codeInfo']['cloc']         = $this->codeIdentityManager->getLinesOfCodeCounts($auditsFilesDirectory);
+            $auditsRequest['auditsFilesChecksum']      =
+                $this->filesManager->generateChecksum($auditsFilesDirectory);
+            $auditsRequest['auditsFilesDirectorySize'] =
+                $this->filesManager->getDirectorySize($auditsFilesDirectory);
+            $auditsRequest['codeInfo']                 =
+                $this->codeIdentityManager->getWordPressCodeInfo($auditsFilesDirectory);
+            $auditsRequest['codeInfo']['cloc']         =
+                $this->codeIdentityManager->getLinesOfCodeCounts($auditsFilesDirectory);
         }
 
         return $auditsRequest;
@@ -201,7 +207,9 @@ class AuditsManager extends BaseManager
     public function validateOriginalAuditsRequest($originalAuditsRequest)
     {
         $validated = true;
-        if (!isset($originalAuditsRequest['source_url']) || !isset($originalAuditsRequest['source_type']) || !isset($originalAuditsRequest['audits'])) {
+        if (!isset($originalAuditsRequest['source_url'])
+            || !isset($originalAuditsRequest['source_type'])
+            || !isset($originalAuditsRequest['audits'])) {
             $validated = false;
         }
 
@@ -222,9 +230,15 @@ class AuditsManager extends BaseManager
     {
         $auditsResults = array();
         $audits = $auditsRequest['audits'] ?? array();
-        $auditsFilesDirectory = !empty($auditsRequest['auditsFilesDirectory']) ? $auditsRequest['auditsFilesDirectory'] : '';
-        $auditsReportsDirectory = !empty($auditsRequest['auditsReportsDirectory']) ? $auditsRequest['auditsReportsDirectory'] : '';
-        $auditsFilesChecksum = !empty($auditsRequest['auditsFilesChecksum']) ? $auditsRequest['auditsFilesChecksum'] : '';
+        $auditsFilesDirectory = !empty($auditsRequest['auditsFilesDirectory'])
+            ? $auditsRequest['auditsFilesDirectory']
+            : '';
+        $auditsReportsDirectory = !empty($auditsRequest['auditsReportsDirectory'])
+            ? $auditsRequest['auditsReportsDirectory']
+            : '';
+        $auditsFilesChecksum = !empty($auditsRequest['auditsFilesChecksum'])
+            ? $auditsRequest['auditsFilesChecksum']
+            : '';
         $codeInfoType = $auditsRequest['codeInfo']['type'] ?? '';
 
         /*
@@ -260,7 +274,9 @@ class AuditsManager extends BaseManager
 		 */
 
         if (! in_array($codeInfoType, array( 'plugin', 'theme' ), true)) {
-            $this->output->writeln('<error>Skipping audit. The code does not appears to be a WordPress theme or plugin.</error>');
+            $this->output->writeln(
+                '<error>Skipping audit. The code does not appears to be a WordPress theme or plugin.</error>'
+            );
             $this->filesManager->deleteDirectory($auditsFilesDirectory);
 
             if (! empty($auditsRequest['archiveFile'])) {
@@ -306,22 +322,51 @@ class AuditsManager extends BaseManager
             try {
                 if ('phpcs' === $audit['type']) {
                     $scoringOptions = ! empty($audit['scoring']) ? $audit['scoring'] : array();
-                    $weightingsFile = ! empty($audit['scoring']['weightingsFile']) ? $audit['scoring']['weightingsFile'] : '';
+                    $weightingsFile = ! empty($audit['scoring']['weightingsFile'])
+                        ? $audit['scoring']['weightingsFile']
+                        : '';
 
                     $this->auditManagers[ $audit['type'] ]->setOutput($this->output);
-                    $results = $this->auditManagers[ $audit['type'] ]->getExistingAuditReport($auditOptions, $existingAuditReports, $existingAuditReportsKeys);
+                    $results = $this->auditManagers[ $audit['type'] ]->getExistingAuditReport(
+                        $auditOptions,
+                        $existingAuditReports,
+                        $existingAuditReportsKeys
+                    );
 
                     if (empty($results)) {
-                        $results = $this->auditManagers[ $audit['type'] ]->runAudit($auditsRequest, $audit, $auditsFilesDirectory, $auditsReportsDirectory, $auditsFilesChecksum, $auditOptions);
+                        $results = $this->auditManagers[ $audit['type'] ]->runAudit(
+                            $auditsRequest,
+                            $audit,
+                            $auditsFilesDirectory,
+                            $auditsReportsDirectory,
+                            $auditsFilesChecksum,
+                            $auditOptions
+                        );
 
                         // If it's phpcompatibility, check that instead of getting the scores.
                         if (isset($results['full']['key']) && 'json' === $audit['options']['report']) {
                             if ('phpcompatibility' === $audit_standard) {
-                                $results['compatible_versions'] = $this->auditManagers[ $audit['type'] ]->getPHPCompatibilityReport($auditsReportsDirectory . '/' . $results['full']['key'], false);
+                                $results['compatible_versions'] =
+                                    $this->auditManagers[ $audit['type'] ]->getPHPCompatibilityReport(
+                                        $auditsReportsDirectory . '/' . $results['full']['key'],
+                                        false
+                                    );
                             } elseif (! empty($weightingsFile)) {
-                                $results['scores']  = $this->scoringManagers[ $audit['type'] ]->getScores($auditsReportsDirectory . '/' . $results['full']['key'], $scoringOptions, $linesOfCode);
-                                $details            = $this->auditManagers[ $audit['type'] ]->parseDetailedReport($auditsReportsDirectory . '/' . $results['full']['key'], $weightingsFile);
-                                $results['summary'] = $this->auditManagers[ $audit['type'] ]->getSummaryReport($details);
+                                $results['scores']  =
+                                    $this->scoringManagers[ $audit['type'] ]->getScores(
+                                        $auditsReportsDirectory . '/' . $results['full']['key'],
+                                        $scoringOptions,
+                                        $linesOfCode
+                                    );
+                                $details            =
+                                    $this->auditManagers[ $audit['type'] ]->parseDetailedReport(
+                                        $auditsReportsDirectory . '/' . $results['full']['key'],
+                                        $weightingsFile
+                                    );
+                                $results['summary'] =
+                                    $this->auditManagers[ $audit['type'] ]->getSummaryReport(
+                                        $details
+                                    );
 
                                 if (empty($results['scores'])) {
                                     $results = false;
@@ -331,7 +376,11 @@ class AuditsManager extends BaseManager
                             }
                         }
                         if (false !== $results && 'phpcompatibility' !== $audit_standard) {
-                            $auditRatings[ $auditReportKey ]['rating'] = $this->scoringManagers[ $audit['type'] ]->getAuditRating($results, $scoringOptions);
+                            $auditRatings[ $auditReportKey ]['rating'] =
+                                $this->scoringManagers[ $audit['type'] ]->getAuditRating(
+                                    $results,
+                                    $scoringOptions
+                                );
                         }
                     }
                 }
@@ -405,12 +454,20 @@ class AuditsManager extends BaseManager
             }
 
             // Set to checksum endpoint if its a collection endpoint.
-            if (ApiManager::is_collection_endpoint($sqsTask['response_api_endpoint'])) {
+            if (ApiManager::isCollectionEndpoint($sqsTask['response_api_endpoint'])) {
                 $sqsTask['response_api_endpoint'] = rtrim($sqsTask['response_api_endpoint'], '/');
-                $sqsTask['response_api_endpoint'] = sprintf('%s/%s', $sqsTask['response_api_endpoint'], $modifiedTask['audits_files_checksum']);
+                $sqsTask['response_api_endpoint'] = sprintf(
+                    '%s/%s',
+                    $sqsTask['response_api_endpoint'],
+                    $modifiedTask['audits_files_checksum']
+                );
             } else {
                 // Make sure its not a postID endpoint, but a checksum endpoint.
-                $sqsTask['response_api_endpoint'] = preg_replace('/([\d]+)$/', $modifiedTask['audits_files_checksum'], $sqsTask['response_api_endpoint']);
+                $sqsTask['response_api_endpoint'] = preg_replace(
+                    '/([\d]+)$/',
+                    $modifiedTask['audits_files_checksum'],
+                    $sqsTask['response_api_endpoint']
+                );
             }
 
             return $sqsTask;

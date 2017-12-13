@@ -38,7 +38,8 @@ class ArrayHelper
                     $camelCaseArray[$newKey] = $this->camelCaseKeys($val, $array[$key]);
                 }
 
-                if ($newKey != $key) { // Not doing strict check to allow comparison between a number as a string and an integer.
+                // Not doing strict check to allow comparison between a number as a string and an integer.
+                if ($newKey != $key) {
                     unset($camelCaseArray[$key]);
                 }
             } else {
@@ -71,7 +72,8 @@ class ArrayHelper
                 } else {
                     $underscoreArray[$newKey] = $this->snakeCaseKeys($val, $array[$key], $ignoreKeys);
                 }
-                if ($newKey != $key) { // Not doing strict check to allow comparison between a number as a string and an integer.
+                // Not doing strict check to allow comparison between a number as a string and an integer.
+                if ($newKey != $key) {
                     unset($underscoreArray[$key]);
                 }
             } else {
