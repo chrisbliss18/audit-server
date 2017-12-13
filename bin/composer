@@ -1,0 +1,22 @@
+#!/bin/bash
+
+CURRENT_DIR=$PWD
+ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/../ > /dev/null && pwd )"
+PHP_VERSION=`php -r \@phpinfo\(\)\; | grep 'PHP Version' -m 1`
+
+if [[ $PHP_VERSION != *"PHP Version => 7"* ]]; then
+  echo "You need PHP 7 or above to run composer for the audit server"
+  exit
+fi
+
+composer_files=(
+    "${ROOT_DIR}/composer.json"
+)
+
+for composer_files in "${composer_files[@]}"; do
+    echo -e "Executing $composer_files\n\n"
+    composer_file_dir=${composer_files/composer.json/""}
+    cd $composer_file_dir
+    composer install --no-interaction
+    cd $CURRENT_DIR
+done
