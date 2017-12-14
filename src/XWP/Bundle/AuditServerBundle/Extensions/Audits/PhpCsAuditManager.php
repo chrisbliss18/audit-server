@@ -165,17 +165,17 @@ class PhpCsAuditManager extends BaseManager
             );
         }
 
-        $weightingsFile = ! empty($audit['scoring']['weightingsFile']) ? $audit['scoring']['weightingsFile'] : '';
         $detailsReportFilename = $auditsFilesChecksum.'-phpcs-'.$this->auditStandardKey.'-details.'.$options['report'];
         $detailsReportPath = $auditsReportsDirectory . '/' . $detailsReportFilename;
 
         if ('phpcompatibility' === strtolower($this->auditStandardKey)) {
             $details = $this->getPHPCompatibilityReport($fullReportPath, true);
         } else {
-            $details = $this->parseDetailedReport($fullReportPath, $weightingsFile);
+            $details = $this->parseDetailedReport($fullReportPath);
         }
         file_put_contents($detailsReportPath, json_encode($details));
-
+        $this->output->writeln( "===========" );
+        $this->output->writeln($detailsReportPath);
         if (file_exists($detailsReportPath)) {
             // @todo: Handle errors.
             $result = $this->s3Client->putObject(array(
@@ -220,22 +220,24 @@ class PhpCsAuditManager extends BaseManager
 
         $existingReport = array();
 
-        $auditReportKey = "phpcs_{$this->auditStandardKey}";
-        if (in_array(
-            $auditReportKey,
-            $existingAuditReportsKeys
-        ) && ! empty($existingAuditReports[$auditReportKey]) && ! array_key_exists(
-            'error',
-            $existingAuditReports[$auditReportKey]
-        )) {
-            $this->output->writeln(
-                "<info>The audit report {$auditReportKey} already exists. Skipping running audit...</info>"
-            );
-            $existingReport = isset($existingAuditReports[$auditReportKey])
-                ? $existingAuditReports[$auditReportKey]
-                : array();
-        }
+//        $auditReportKey = "phpcs_{$this->auditStandardKey}";
+//        if (in_array(
+//            $auditReportKey,
+//            $existingAuditReportsKeys
+//        ) && ! empty($existingAuditReports[$auditReportKey]) && ! array_key_exists(
+//            'error',
+//            $existingAuditReports[$auditReportKey]
+//        )) {
+//            $this->output->writeln(
+//                "<info>The audit report {$auditReportKey} already exists. Skipping running audit...</info>"
+//            );
+//            $existingReport = isset($existingAuditReports[$auditReportKey])
+//                ? $existingAuditReports[$auditReportKey]
+//                : array();
+//        }
 
+        // @todo DEBUG
+        return [];
         return $existingReport;
     }
 
@@ -327,25 +329,14 @@ class PhpCsAuditManager extends BaseManager
      * Adjust report details for the response.
      *
      * @param string $reportFile Report file.
-     * @param string $weightingsFile Weightings file.
      * @return array Report details.
      */
-    public function parseDetailedReport($reportFile, $weightingsFile)
+    public function parseDetailedReport($reportFile)
     {
         try {
             $report = json_decode(file_get_contents($reportFile), true);
-            $weightings = json_decode(
-                file_get_contents($this->settings['weightings_path'].'/phpcs/'.$weightingsFile),
-                true
-            );
         } catch (\Exception $e) {
             return array();
-        }
-
-        // Since the sniffs in the weightings file are categorized, we have to merge these.
-        $configuredSniffs = array();
-        foreach ($weightings as $category) {
-            $configuredSniffs = array_merge($configuredSniffs, $category['sniffs']);
         }
 
         unset($report['totals']['fixable']);
@@ -357,20 +348,6 @@ class PhpCsAuditManager extends BaseManager
             unset($report['files'][ $file ]);
 
             foreach ($issues['messages'] as $index => $message) {
-                // If the source isn't included in weightings, skip the sniff and reduce the totals.
-                $pieces = explode('.', $message['source']);
-                $sniff = implode('.', array_splice($pieces, 0, 3));
-
-                if (! array_key_exists($sniff, $configuredSniffs)) {
-                    if ('ERROR' === $report['files'][ $filename ]['messages'][ $index ]['type']) {
-                        $report['totals']['errors']--;
-                    } elseif ('WARNING' === $report['files'][ $filename ]['messages'][ $index ]['type']) {
-                        $report['totals']['warnings']--;
-                    }
-                    unset($report['files'][ $filename ]['messages'][ $index ]);
-                    continue;
-                }
-
                 unset($report['files'][ $filename ]['messages'][ $index ]['severity']);
                 unset($report['files'][ $filename ]['messages'][ $index ]['fixable']);
             }
