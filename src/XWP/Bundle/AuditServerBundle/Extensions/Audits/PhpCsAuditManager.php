@@ -74,9 +74,10 @@ class PhpCsAuditManager extends BaseManager
         $this->s3Client = $this->awsS3Manager->getClient();
         $this->s3BucketName = $this->awsS3Manager->getBucketName();
         $this->defaultOptions = array(
-            'standard'   => 'tide-default',
+            'standard'   => 'wordpress',
             'extensions' => 'php',
             'report'     => 'json',
+            'ignore'     => '*/vendor/*,*/node_modules/*',
             'parallel'   => 10,
         );
     }
