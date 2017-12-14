@@ -168,7 +168,7 @@ class LaunchAuditServerCommand extends EndlessContainerAwareCommand
                     if (empty($existingAuditReports['lighthouse']) || array_key_exists(
                         'error',
                         $existingAuditReports['lighthouse']
-                    )) {
+                    ) || true === $auditsRequest['force']) {
                         $sqsTask = $this->auditsManager->prepareThemeTaskForSQS($originalAuditsRequest, $auditsRequest);
                         if (! empty($sqsTask) && $this->awsSqsLhManager->createAuditTask($sqsTask)) {
                             $output->writeln('<info>Theme submitted for Lighthouse Audit.</info>');

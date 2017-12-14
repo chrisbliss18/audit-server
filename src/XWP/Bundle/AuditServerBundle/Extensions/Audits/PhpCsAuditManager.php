@@ -203,6 +203,7 @@ class PhpCsAuditManager extends BaseManager
     /**
      * Get Existing audit report.
      *
+     * @param array $auditsRequest The audits request.
      * @param array $options PHPCS Options.
      * @param array $existingAuditReports Existing audit reports.
      * @param array $existingAuditReportsKeys Existing audit reports keys.
@@ -210,6 +211,7 @@ class PhpCsAuditManager extends BaseManager
      * @return array Audit results.
      */
     public function getExistingAuditReport(
+        $auditsRequest,
         $options = array(),
         $existingAuditReports = array(),
         $existingAuditReportsKeys = array()
@@ -221,13 +223,18 @@ class PhpCsAuditManager extends BaseManager
         $existingReport = array();
 
         $auditReportKey = "phpcs_{$this->auditStandardKey}";
-        if (in_array(
-            $auditReportKey,
-            $existingAuditReportsKeys
-        ) && ! empty($existingAuditReports[$auditReportKey]) && ! array_key_exists(
-            'error',
-            $existingAuditReports[$auditReportKey]
-        )) {
+
+        $exists = in_array($auditReportKey, $existingAuditReportsKeys);
+
+        // Ignore existing if...
+        $ignoreExisting =
+            // It has an error.
+            ( ! empty($existingAuditReports[$auditReportKey])
+              && array_key_exists('error', $existingAuditReports[$auditReportKey])) ||
+            // It's been forced for re-audit.
+            true === $auditsRequest['force'];
+
+        if ($exists && ! $ignoreExisting) {
             $this->output->writeln(
                 "<info>The audit report {$auditReportKey} already exists. Skipping running audit...</info>"
             );
