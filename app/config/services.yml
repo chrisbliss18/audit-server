@@ -36,12 +36,6 @@ services:
         calls:
             - [setLogger, ['@app.logger_manager']]
 
-    app.phpcs_scoring_manager:
-        class:     XWP\Bundle\AuditServerBundle\Extensions\Audits\PhpCsScoringManager
-        arguments: ['%audit_settings%']
-        calls:
-            - [setLogger, ['@app.logger_manager']]
-
     app.files_manager:
         class:     XWP\Bundle\AuditServerBundle\Extensions\FilesManager
         calls:
@@ -71,7 +65,6 @@ services:
         arguments: ['%audit_settings%', '@app.files_manager', '@app.code_identity_manager']
         calls:
             - [setAuditManager, ['phpcs', '@app.phpcs_audit_manager']]
-            - [setScoringManager, ['phpcs', '@app.phpcs_scoring_manager']]
             - [setHelper, ['array', '@app.array_helper']]
             - [setPhpCsStandards, ['%audit_settings%']]
             - [setLogger, ['@app.logger_manager']]

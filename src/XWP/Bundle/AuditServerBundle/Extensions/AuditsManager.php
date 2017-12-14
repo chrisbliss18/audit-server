@@ -47,13 +47,6 @@ class AuditsManager extends BaseManager
     private $auditManagers = array();
 
     /**
-     * Scoring managers.
-     *
-     * @var array
-     */
-    private $scoringManagers = array();
-
-    /**
      * Constructor.
      *
      * @param  array $settings Settings.
@@ -82,18 +75,6 @@ class AuditsManager extends BaseManager
         $this->auditManagers[$managerName] = $manager;
     }
 
-    /**
-     * Set scoring manager.
-     *
-     * @param string $managerName Audit manager name.
-     * @param object $manager     Audit manager.
-     *
-     * @return  void
-     */
-    public function setScoringManager($managerName, $manager)
-    {
-        $this->scoringManagers[$managerName] = $manager;
-    }
     /**
      * Set PHPCS standards.
      *
@@ -321,11 +302,6 @@ class AuditsManager extends BaseManager
 
             try {
                 if ('phpcs' === $audit['type']) {
-                    $scoringOptions = ! empty($audit['scoring']) ? $audit['scoring'] : array();
-                    $weightingsFile = ! empty($audit['scoring']['weightingsFile'])
-                        ? $audit['scoring']['weightingsFile']
-                        : '';
-
                     $this->auditManagers[ $audit['type'] ]->setOutput($this->output);
                     $results = $this->auditManagers[ $audit['type'] ]->getExistingAuditReport(
                         $auditOptions,
@@ -343,7 +319,6 @@ class AuditsManager extends BaseManager
                             $auditOptions
                         );
 
-                        // If it's phpcompatibility, check that instead of getting the scores.
                         if (isset($results['full']['key']) && 'json' === $audit['options']['report']) {
                             if ('phpcompatibility' === $audit_standard) {
                                 $results['compatible_versions'] =
@@ -351,36 +326,16 @@ class AuditsManager extends BaseManager
                                         $auditsReportsDirectory . '/' . $results['full']['key'],
                                         false
                                     );
-                            } elseif (! empty($weightingsFile)) {
-                                $results['scores']  =
-                                    $this->scoringManagers[ $audit['type'] ]->getScores(
-                                        $auditsReportsDirectory . '/' . $results['full']['key'],
-                                        $scoringOptions,
-                                        $linesOfCode
-                                    );
+                            } else {
                                 $details            =
                                     $this->auditManagers[ $audit['type'] ]->parseDetailedReport(
-                                        $auditsReportsDirectory . '/' . $results['full']['key'],
-                                        $weightingsFile
+                                        $auditsReportsDirectory . '/' . $results['full']['key']
                                     );
                                 $results['summary'] =
                                     $this->auditManagers[ $audit['type'] ]->getSummaryReport(
                                         $details
                                     );
-
-                                if (empty($results['scores'])) {
-                                    $results = false;
-                                    if (false !== $results && 'phpcompatibility' !== $audit_standard) {
-                                    }
-                                }
                             }
-                        }
-                        if (false !== $results && 'phpcompatibility' !== $audit_standard) {
-                            $auditRatings[ $auditReportKey ]['rating'] =
-                                $this->scoringManagers[ $audit['type'] ]->getAuditRating(
-                                    $results,
-                                    $scoringOptions
-                                );
                         }
                     }
                 }
@@ -401,24 +356,6 @@ class AuditsManager extends BaseManager
                 $this->isAuditsRequestSuccesful = false;
             }
         }
-
-        /*
-		 * Calculation for general rating. Takes the average of all audits.
-		 * Some audits might be empty and without rating, doesn't count these in.
-		 */
-        $generalRating = 0;
-        $auditsCount = 0;
-        foreach ($auditRatings as $auditReport => $data) {
-            if (isset($data['rating']) && false !== $data['rating']) {
-                $auditsCount++;
-                $generalRating += $data['rating'];
-            }
-        }
-        if (0 < $generalRating) {
-            $generalRating = round($generalRating / $auditsCount, 2);
-        }
-
-        $auditsResults['rating'] = $generalRating;
 
         if (!empty($auditsRequest['archiveFile'])) {
             unlink($auditsRequest['archiveFile']);
