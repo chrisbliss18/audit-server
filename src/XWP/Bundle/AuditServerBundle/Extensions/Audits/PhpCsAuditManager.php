@@ -220,24 +220,22 @@ class PhpCsAuditManager extends BaseManager
 
         $existingReport = array();
 
-//        $auditReportKey = "phpcs_{$this->auditStandardKey}";
-//        if (in_array(
-//            $auditReportKey,
-//            $existingAuditReportsKeys
-//        ) && ! empty($existingAuditReports[$auditReportKey]) && ! array_key_exists(
-//            'error',
-//            $existingAuditReports[$auditReportKey]
-//        )) {
-//            $this->output->writeln(
-//                "<info>The audit report {$auditReportKey} already exists. Skipping running audit...</info>"
-//            );
-//            $existingReport = isset($existingAuditReports[$auditReportKey])
-//                ? $existingAuditReports[$auditReportKey]
-//                : array();
-//        }
+        $auditReportKey = "phpcs_{$this->auditStandardKey}";
+        if (in_array(
+            $auditReportKey,
+            $existingAuditReportsKeys
+        ) && ! empty($existingAuditReports[$auditReportKey]) && ! array_key_exists(
+            'error',
+            $existingAuditReports[$auditReportKey]
+        )) {
+            $this->output->writeln(
+                "<info>The audit report {$auditReportKey} already exists. Skipping running audit...</info>"
+            );
+            $existingReport = isset($existingAuditReports[$auditReportKey])
+                ? $existingAuditReports[$auditReportKey]
+                : array();
+        }
 
-        // @todo DEBUG
-        return [];
         return $existingReport;
     }
 
