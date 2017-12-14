@@ -124,6 +124,7 @@ class AuditsManager extends BaseManager
             'revisionMeta'             => array(),
             'audits'                   => array(),
             'requestClient'            => '',
+            'force'                    => false,
         );
 
         $auditsRequest = array_merge($defaultAuditsRequest, $originalAuditsRequest);
@@ -304,6 +305,7 @@ class AuditsManager extends BaseManager
                 if ('phpcs' === $audit['type']) {
                     $this->auditManagers[ $audit['type'] ]->setOutput($this->output);
                     $results = $this->auditManagers[ $audit['type'] ]->getExistingAuditReport(
+                        $auditsRequest,
                         $auditOptions,
                         $existingAuditReports,
                         $existingAuditReportsKeys
