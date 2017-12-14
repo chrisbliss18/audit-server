@@ -47,13 +47,6 @@ class AuditsManager extends BaseManager
     private $auditManagers = array();
 
     /**
-     * Scoring managers.
-     *
-     * @var array
-     */
-    private $scoringManagers = array();
-
-    /**
      * Constructor.
      *
      * @param  array $settings Settings.
@@ -82,18 +75,6 @@ class AuditsManager extends BaseManager
         $this->auditManagers[$managerName] = $manager;
     }
 
-    /**
-     * Set scoring manager.
-     *
-     * @param string $managerName Audit manager name.
-     * @param object $manager     Audit manager.
-     *
-     * @return  void
-     */
-    public function setScoringManager($managerName, $manager)
-    {
-        $this->scoringManagers[$managerName] = $manager;
-    }
     /**
      * Set PHPCS standards.
      *
@@ -338,7 +319,6 @@ class AuditsManager extends BaseManager
                             $auditOptions
                         );
 
-                        // If it's phpcompatibility, check that instead of getting the scores.
                         if (isset($results['full']['key']) && 'json' === $audit['options']['report']) {
                             if ('phpcompatibility' === $audit_standard) {
                                 $results['compatible_versions'] =

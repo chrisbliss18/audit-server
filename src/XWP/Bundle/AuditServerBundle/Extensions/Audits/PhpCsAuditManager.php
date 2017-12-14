@@ -174,8 +174,7 @@ class PhpCsAuditManager extends BaseManager
             $details = $this->parseDetailedReport($fullReportPath);
         }
         file_put_contents($detailsReportPath, json_encode($details));
-        $this->output->writeln( "===========" );
-        $this->output->writeln($detailsReportPath);
+
         if (file_exists($detailsReportPath)) {
             // @todo: Handle errors.
             $result = $this->s3Client->putObject(array(
