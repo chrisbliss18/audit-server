@@ -16,7 +16,6 @@ parameters:
     audit_settings:
         scripts_path: "%audit_scripts_path%"
         standards_path: "%audit_standards_path%"
-        weightings_path: "%audit_weightings_path%"
         stats_path: "%audit_stats_path%"
     logger_settings:
         name: Tide
