@@ -149,6 +149,13 @@ class ApiManager extends BaseManager
             );
         }
 
+        // Assign the project type.
+        if (empty($auditsRequest['project_type'])) {
+            $payload['project_type'] = $codeInfo['type']; // Will always have a type: plugin, theme, unknown.
+        } else {
+            $payload['project_type'] = $auditsRequest['project_type'];
+        }
+
         // Payload should not include slug.
         unset($payload['slug']);
 
