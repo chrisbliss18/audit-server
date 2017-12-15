@@ -15,12 +15,13 @@ function image_to_ecr {
     fi
 
     # Build tags, and push branch
-    docker build -t $1:$BUILD_VERSION -t $1:$REPO_TAG -f $2 $3
+    docker build -t $1:$REPO_TAG -f $2 $3
     docker tag $1:$REPO_TAG $AWS_ACCOUNT_NUMBER.dkr.ecr.$REPO_REGION.amazonaws.com/$1:$REPO_TAG
     docker push $AWS_ACCOUNT_NUMBER.dkr.ecr.$REPO_REGION.amazonaws.com/$1:$REPO_TAG
 
     # Only tag & push build version for production image
     if [ "$TRAVIS_BRANCH" == "master" ]; then
+        docker build -t $1:$BUILD_VERSION -f $2 $3
         docker tag $1:$BUILD_VERSION $AWS_ACCOUNT_NUMBER.dkr.ecr.$REPO_REGION.amazonaws.com/$1:$BUILD_VERSION
         docker push $AWS_ACCOUNT_NUMBER.dkr.ecr.$REPO_REGION.amazonaws.com/$1:$BUILD_VERSION
     fi
