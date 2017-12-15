@@ -24,6 +24,8 @@ function image_to_ecr {
         docker tag $1:$BUILD_VERSION $AWS_ACCOUNT_NUMBER.dkr.ecr.$REPO_REGION.amazonaws.com/$1:$BUILD_VERSION
         docker push $AWS_ACCOUNT_NUMBER.dkr.ecr.$REPO_REGION.amazonaws.com/$1:$BUILD_VERSION
     fi
+
+    aws ecr batch-delete-image --repository-name $1 --region $REPO_REGION --image-ids $(aws ecr list-images --repository-name $1 --region $REPO_REGION --filter tagStatus=UNTAGGED --query 'imageIds[*]'| tr -d " \t\n\r") || true
 }
 
 # Install ASW CLI
@@ -33,7 +35,7 @@ pip install --user awscli
 export PATH=$PATH:$HOME/.local/bin
 
 # Login to ECR
-eval $(aws ecr get-login --region $REPO_REGION)
+eval $(aws ecr get-login --region $REPO_REGION --no-include-email)
 
 # Build and push images to ECR
 image_to_ecr tide/audit-server ./docker/Dockerfile .
