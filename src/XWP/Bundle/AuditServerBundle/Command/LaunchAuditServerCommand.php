@@ -72,15 +72,15 @@ class LaunchAuditServerCommand extends EndlessContainerAwareCommand
     protected function configure()
     {
         $this->setName('tide:audit-server')
-             ->setDescription('Tide Audit Server')
-             ->addOption(
-                 'enableStats',
-                 null,
-                 InputOption::VALUE_NONE,
-                 'Run with stats',
-                 null
-             )
-             ->setTimeout(1.5); // Set the timeout in seconds between two calls to the "execute" method.
+            ->setDescription('Tide Audit Server')
+            ->addOption(
+                'enableStats',
+                null,
+                InputOption::VALUE_NONE,
+                'Run with stats',
+                null
+            )
+            ->setTimeout(1.5); // Set the timeout in seconds between two calls to the "execute" method.
     }
 
     // This is a normal Command::initialize() method and it's called exactly once before the first execute call.
