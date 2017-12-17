@@ -138,9 +138,9 @@ class YamlHelper
         $array = array();
         if (strpos($line, ': ')) {
             /*
-			 * It's a key/value pair most likely.
-			 * If the key is in double quotes pull it out.
-			 */
+             * It's a key/value pair most likely.
+             * If the key is in double quotes pull it out.
+             */
             if (( '"' === $line[0] || "'" === $line[0] ) && preg_match('/^(["\'](.*)["\'](\s)*:)/', $line, $matches)) {
                 $value = trim(str_replace($matches[1], '', $line));
                 $key = $matches[2];
