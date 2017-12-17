@@ -224,8 +224,8 @@ class AuditsManager extends BaseManager
         $codeInfoType = $auditsRequest['codeInfo']['type'] ?? '';
 
         /*
-		 * The following Exceptions are all critical.
-		 */
+         * The following Exceptions are all critical.
+         */
 
         if (empty($audits)) {
             $message = 'No audits found.';
@@ -252,8 +252,8 @@ class AuditsManager extends BaseManager
         }
 
         /*
-		 * Not technically critical, but will yield no results.
-		 */
+         * Not technically critical, but will yield no results.
+         */
 
         if (! in_array($codeInfoType, array( 'plugin', 'theme' ), true)) {
             $this->output->writeln(

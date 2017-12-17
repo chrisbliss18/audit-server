@@ -20,6 +20,7 @@ env:
 
 script:
     - ${TRAVIS_BUILD_DIR}/bin/composer
+    - ./vendor/bin/phpcs
 
 deploy:
     - provider: script
