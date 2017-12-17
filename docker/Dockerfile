@@ -149,8 +149,8 @@ RUN echo "" >> ~/.bashrc && \
 # xDebug:
 #####################################
 
-RUN pecl update-channels && \
-    pecl install xdebug && \
+RUN pear update-channels && \
+    pecl install xdebug-2.5.5 && \
     apt-get update && \
     apt-get install -y --force-yes php-xdebug && \
     sed -i 's/^/;/g' /etc/php/7.1/cli/conf.d/20-xdebug.ini
