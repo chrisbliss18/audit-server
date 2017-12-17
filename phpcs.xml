@@ -2,8 +2,17 @@
 <ruleset name="Audit Server Sniffs">
     <description>Symfony Coding Standards</description>
 
-    <rule ref="PSR1" />
-    <rule ref="PSR2" />
+    <rule ref="PSR1">
+        <!--
+          Relax standard: don't require namespaces for controllers, etc.
+        -->
+        <exclude name="PSR1.Classes.ClassDeclaration"/>
+    </rule>
+
+    <rule ref="PSR2">
+        <!--<exclude name="PSR2.Methods.MethodDeclaration"/>-->
+        <!--<exclude name="PSR2.Classes.PropertyDeclaration"/>-->
+    </rule>
 
     <arg name="extensions" value="php"/>
 
