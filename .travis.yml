@@ -8,6 +8,9 @@ notifications:
         rooms:
             secure: JIzHeNZ9xAPvMxgjQ/R5p96budpQWQvgCPpt4pYJU8lreD5ULJOkxIDYjmehHQ6tMt8a4WGfaRJAgimg1wh4fzJ7xZ84PcKMGyyyi4LrMzgJc/GDO7JhmyLVgh4DgiYNiiC9VOYk2A2de9L7YzIYR6keIOMSwLa9ec9aTKLXTlncKEdrWSsBPDb+2/tZ6zBmXEOhbaIifKHCPd2azAtykMpSdqUGVnCnMWRLvMvARQ7iJWft6p4TM+rZrzRi4UMWegQIdMXeEiJ0xk5H6XuwErTNPXraUDWZF0JAoXLuFmP2MhYhScB/fa4aujw5nv2Ri+UEHfum44/v6FtlqJtKn8kPNS3/ZyJOEOknCmzged8CX8J40SbrTB4EE2TVeQplHxqS/uIgec6jrA50NfN7WGiZ33IO0rENWcWRgsrLgNkwfxrtxWh7c2vKU87pgvWLzwMsNda4jjlJn2odgG1IfanWKE3PBBskLLrMDTmjJH9iZRwCXL8xFk9+CC+y2xtoP6CgrDdRYMWbvLsGz1KXaetvYbRhW1nFTzFTCVzhbqhw98nrP3S8h974EYJkOtqrcP17PSmT1l5CIGUKA1/z1cQFKq1jhuwlhJ7cNSv0vxAchFkd+gv8PCUl6HvMaphQ36jJjAgAdio88xMKzQAYbLPzLyzMmbiceHykrVopua8=
 
+services:
+    - docker
+
 language:
     - php
 
@@ -17,6 +20,13 @@ php:
 env:
     global:
         - BUILD_VERSION=0.1.0
+
+before_install:
+    - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    - sudo apt-get update
+    - sudo apt-get -y install docker-ce
+    - docker version
 
 script:
     - ${TRAVIS_BUILD_DIR}/bin/composer
