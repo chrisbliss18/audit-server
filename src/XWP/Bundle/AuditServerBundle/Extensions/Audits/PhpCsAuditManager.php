@@ -140,7 +140,7 @@ class PhpCsAuditManager extends BaseManager
 
         $fullReportFilename = $auditsFilesChecksum.'-phpcs-'.$this->auditStandardKey.'-full.'.$options['report'];
         $fullReportPath = $auditsReportsDirectory . '/' . $fullReportFilename;
-
+        
         $command = "phpcs $stringOptions --report-{$options['report']}=$fullReportPath $auditsFilesDirectory -q";
 
         list ( $output, $err ) = Helpers\ExecHelper::run($command, true, true);
@@ -347,19 +347,19 @@ class PhpCsAuditManager extends BaseManager
         try {
             $report = json_decode(file_get_contents($reportFile), true);
         } catch (\Exception $e) {
-	        $report = null;
+            $report = null;
         }
 
-	    // Just because json_decode() didn't throw an exception doesn't mean that $reportFile
-	    // was successfully decoded.
-	    if ( null === $report ) {
-		    $reportFileError = json_last_error_msg();
-		    $message = 'Attempting to parse the report file caused a JSON decoding issue.';
-		    $this->output->writeln('<error>' . $message . '</error>');
-		    if ( $reportFileError !== JSON_ERROR_NONE ) {
-			    $this->output->writeln('<error>JSON Error: ' . $reportFileError . '</error>');
-		    }
-		    throw new \Exception($message);
+        // Just because json_decode() didn't throw an exception doesn't mean that $reportFile
+        // was successfully decoded.
+        if (null === $report) {
+            $reportFileError = json_last_error_msg();
+            $message = 'Attempting to parse the report file caused a JSON decoding issue.';
+            $this->output->writeln('<error>' . $message . '</error>');
+            if ($reportFileError !== JSON_ERROR_NONE) {
+                $this->output->writeln('<error>JSON Error: ' . $reportFileError . '</error>');
+            }
+            throw new \Exception($message);
         }
 
         unset($report['totals']['fixable']);
@@ -418,26 +418,25 @@ class PhpCsAuditManager extends BaseManager
 
         // Only proceed if phpcs successfully created a report file.
         if (file_exists($phpcs_report_file)) {
+            try {
+                $json = file_get_contents($phpcs_report_file);
+                $json = json_decode($json, true);
+                $reportFileError = json_last_error_msg();
+            } catch (\Exception $e) {
+                $json = null;
+            }
 
-	        try {
-		        $json = file_get_contents( $phpcs_report_file );
-		        $json = json_decode( $json, true );
-		        $reportFileError = json_last_error_msg();
-	        } catch (\Exception $e) {
-		        $json = null;
-	        }
-
-	        // Just because json_decode() didn't throw an exception doesn't mean that $reportFile was
-	        // successfully decoded.
-	        if ( null === $json ) {
-		        $reportFileError = json_last_error_msg();
-		        $message = 'Attempting to parse the report file caused a JSON decoding issue.';
-		        $this->output->writeln('<error>' . $message . '</error>');
-		        if ( $reportFileError !== JSON_ERROR_NONE ) {
-			        $this->output->writeln('<error>JSON Error: ' . $reportFileError . '</error>');
-		        }
-		        throw new \Exception($message);
-	        }
+            // Just because json_decode() didn't throw an exception doesn't mean that $reportFile was
+            // successfully decoded.
+            if (null === $json) {
+                $reportFileError = json_last_error_msg();
+                $message = 'Attempting to parse the report file caused a JSON decoding issue.';
+                $this->output->writeln('<error>' . $message . '</error>');
+                if ($reportFileError !== JSON_ERROR_NONE) {
+                    $this->output->writeln('<error>JSON Error: ' . $reportFileError . '</error>');
+                }
+                throw new \Exception($message);
+            }
 
             // Map errors into an array keyed by PHP version.
             foreach ($json['files'] as $file => $errors) {

@@ -146,22 +146,34 @@ class AuditsManager extends BaseManager
         $created = false;
         switch ($auditsRequest['sourceType']) {
             case 'git':
-                $created = $this->filesManager->cloneRepo($auditsRequest['sourceUrl'], $auditsFilesDirectory);
+                try {
+                    $created = $this->filesManager->cloneRepo($auditsRequest['sourceUrl'], $auditsFilesDirectory);
+                } catch (\Exception $e) {
+                    $message = 'Repository could not be cloned for this audit.';
+                    $this->output->writeln('<error>' . $message . '</error>');
+                    throw new \Exception($message);
+                }
                 break;
             case 'zip':
-                $archiveFile = $destinationBasePath . '/' . $fileParts['basename'];
-                $auditsRequest['archiveFile'] = $archiveFile;
-                $this->filesManager->downloadFile($auditsRequest['sourceUrl'], $auditsRequest['archiveFile']);
-                $created = $this->filesManager->extractZipArchive($auditsRequest['archiveFile'], $auditsFilesDirectory);
+                try {
+                    $archiveFile                  = $destinationBasePath . '/' . $fileParts['basename'];
+                    $auditsRequest['archiveFile'] = $archiveFile;
+                    $this->filesManager->downloadFile($auditsRequest['sourceUrl'], $auditsRequest['archiveFile']);
+                    $created = $this->filesManager->extractZipArchive(
+                        $auditsRequest['archiveFile'],
+                        $auditsFilesDirectory
+                    );
+                } catch (\Exception $e) {
+                    $message = 'File could not be downloaded for this audit.';
+                    $this->output->writeln('<error>' . $message . '</error>');
+                    throw new \Exception($message);
+                }
                 break;
             default:
                 break;
         }
 
-        if (!$created) {
-            $auditsRequest['auditsFilesDirectory'] = '';
-            $auditsRequest['auditsReportsDirectory'] = '';
-        } else {
+        if ($created) {
             $this->filesManager->createDirectory($auditsReportsDirectory);
 
             $auditsRequest['auditsFilesChecksum']      =
