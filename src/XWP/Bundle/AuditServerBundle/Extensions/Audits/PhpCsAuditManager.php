@@ -385,6 +385,7 @@ class PhpCsAuditManager extends BaseManager
 
         $compatible_versions = array(); // PHP versions that this code is compatible with.
         $compat              = array(); // Sniff results keyed by PHP version.
+        $fatal               = false; // If `phpcs` cannot continue.
         $highest_version     = false; // Non-existent purposefully high version.
         $lowest_version      = false; // Non-existent purposefully low version.
 
@@ -408,6 +409,10 @@ class PhpCsAuditManager extends BaseManager
                 $filename = $split[1];
 
                 foreach ($errors['messages'] as $message) {
+                    if (array_key_exists('source', $message) && $message['source'] === "Internal.Exception") {
+                        $fatal = true;
+                    }
+
                     $php_version = false;
                     $match = [];
                     preg_match('/(\d)(.\d)+/', $message['message'], $match);
@@ -508,6 +513,11 @@ class PhpCsAuditManager extends BaseManager
             return array_merge($counts, $compat);
         }
 
-        return $compatible_versions;
+        // If not fatal.
+        if (! $fatal) {
+            return $compatible_versions;
+        } else {
+            return [ "unknown" ];
+        }
     }
 }
