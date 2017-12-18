@@ -49,9 +49,9 @@ class AuditsManager extends BaseManager
     /**
      * Constructor.
      *
-     * @param  array $settings Settings.
-     * @param  \XWP\Bundle\AuditServerBundle\Extensions\FilesManager $filesManager  Files manager.
-     * @param  \XWP\Bundle\AuditServerBundle\Extensions\CodeIdentityManager $codeIdentityManager  Code identity manager.
+     * @param array $settings Settings.
+     * @param \XWP\Bundle\AuditServerBundle\Extensions\FilesManager $filesManager Files manager.
+     * @param \XWP\Bundle\AuditServerBundle\Extensions\CodeIdentityManager $codeIdentityManager Code identity manager.
      *
      * @return void
      */
@@ -66,7 +66,7 @@ class AuditsManager extends BaseManager
      * Set audit manager.
      *
      * @param string $managerName Audit manager name.
-     * @param object $manager     Audit manager.
+     * @param object $manager Audit manager.
      *
      * @return  void
      */
@@ -98,7 +98,7 @@ class AuditsManager extends BaseManager
     /**
      * Prepare for audits such as cloning or extracting audits files to destination.
      *
-     * @param  array  $originalAuditsRequest Original audits request.
+     * @param array $originalAuditsRequest Original audits request.
      *
      * @throws \Exception When audit can't be prepared.
      *
@@ -146,22 +146,32 @@ class AuditsManager extends BaseManager
         $created = false;
         switch ($auditsRequest['sourceType']) {
             case 'git':
-                $created = $this->filesManager->cloneRepo($auditsRequest['sourceUrl'], $auditsFilesDirectory);
+                try {
+                    $created = $this->filesManager->cloneRepo($auditsRequest['sourceUrl'], $auditsFilesDirectory);
+                } catch (\Exception $e) {
+                    $this->output->writeln('<error>' . $e . '</error>');
+                    throw new \Exception('Git repository could not be cloned for this audit.');
+                }
                 break;
             case 'zip':
-                $archiveFile = $destinationBasePath . '/' . $fileParts['basename'];
-                $auditsRequest['archiveFile'] = $archiveFile;
-                $this->filesManager->downloadFile($auditsRequest['sourceUrl'], $auditsRequest['archiveFile']);
-                $created = $this->filesManager->extractZipArchive($auditsRequest['archiveFile'], $auditsFilesDirectory);
+                try {
+                    $archiveFile                  = $destinationBasePath . '/' . $fileParts['basename'];
+                    $auditsRequest['archiveFile'] = $archiveFile;
+                    $this->filesManager->downloadFile($auditsRequest['sourceUrl'], $auditsRequest['archiveFile']);
+                    $created = $this->filesManager->extractZipArchive(
+                        $auditsRequest['archiveFile'],
+                        $auditsFilesDirectory
+                    );
+                } catch (\Exception $e) {
+                    $this->output->writeln('<error>' . $e . '</error>');
+                    throw new \Exception('Source archive could not be downloaded for this audit.');
+                }
                 break;
             default:
                 break;
         }
 
-        if (!$created) {
-            $auditsRequest['auditsFilesDirectory'] = '';
-            $auditsRequest['auditsReportsDirectory'] = '';
-        } else {
+        if ($created) {
             $this->filesManager->createDirectory($auditsReportsDirectory);
 
             $auditsRequest['auditsFilesChecksum']      =
@@ -182,9 +192,9 @@ class AuditsManager extends BaseManager
      *
      * @todo: Need improvement.
      *
-     * @param  array  $originalAuditsRequest Original requests.
+     * @param array $originalAuditsRequest Original requests.
      *
-     * @return bool                        Whether or not the request format is validated.
+     * @return bool Whether or not the request format is validated.
      */
     public function validateOriginalAuditsRequest($originalAuditsRequest)
     {
@@ -201,12 +211,12 @@ class AuditsManager extends BaseManager
     /**
      * Run audits.
      *
-     * @param  array $auditsRequest        Audits request.
-     * @param  array $existingAuditReports Existing audit reports.
+     * @param array $auditsRequest Audits request.
+     * @param array $existingAuditReports Existing audit reports.
      *
      * @throws \Exception When an audit can't be processed.
      *
-     * @return array           Audits results.
+     * @return array Audits results.
      */
     public function runAudits($auditsRequest = array(), $existingAuditReports = array())
     {
@@ -273,14 +283,6 @@ class AuditsManager extends BaseManager
 
         $existingAuditReportsKeys = array_keys($existingAuditReports);
 
-        if (isset($auditsRequest['codeInfo']['cloc']['php'])) {
-            $linesOfCode = $auditsRequest['codeInfo']['cloc']['php']['code'];
-        } else {
-            // Default to 100.
-            $linesOfCode = 100;
-        }
-
-        $auditRatings = array();
         foreach ($audits as $key => $audit) {
             $auditOptions = ! empty($audit['options']) ? $audit['options'] : array();
             $audit_standard = ! empty($auditOptions['standard']) ? strtolower(trim($auditOptions['standard'])) : false;
@@ -342,9 +344,11 @@ class AuditsManager extends BaseManager
                     }
                 }
             } catch (\Exception $e) {
+                $message = 'An unexpected error occurred during the audit.';
                 $error   = array(
-                    'error' => $e,
+                    'error' => $message,
                 );
+                $this->output->writeln('<error>' . $e . '</error>');
                 $results = $error;
             }
 

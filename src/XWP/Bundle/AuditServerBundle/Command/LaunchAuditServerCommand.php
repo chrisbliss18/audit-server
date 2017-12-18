@@ -193,6 +193,7 @@ class LaunchAuditServerCommand extends EndlessContainerAwareCommand
             }
         }
 
+        $apiUpdated = false;
         if (! empty($auditsRequestReports['results']) && ! empty($auditsRequest['responseApiEndpoint'])) {
             try {
                 $payload = $this->apiManager->createPayload(
@@ -215,7 +216,7 @@ class LaunchAuditServerCommand extends EndlessContainerAwareCommand
                     );
                 }
 
-                $apiResponse = $this->apiManager->sendPayload($auditsRequest['responseApiEndpoint'], $payload);
+                $this->apiManager->sendPayload($auditsRequest['responseApiEndpoint'], $payload);
                 $apiUpdated = true;
             } catch (\Exception $e) {
                 $errorMessage = $e;

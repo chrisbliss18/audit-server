@@ -169,6 +169,8 @@ class PhpCsAuditManager extends BaseManager
                 'bucketName' => $this->s3BucketName,
                 'key'        => $fullReportFilename,
             );
+        } else {
+            throw new \Exception('The full report file does not exist on the server. '.$fullReportPath);
         }
 
         $detailsReportFilename = $auditsFilesChecksum.'-phpcs-'.$this->auditStandardKey.'-details.'.$options['report'];
@@ -200,6 +202,8 @@ class PhpCsAuditManager extends BaseManager
                 'bucketName' => $this->s3BucketName,
                 'key'        => $detailsReportFilename,
             );
+        } else {
+            throw new \Exception('The detailed report file does not exist on the server. '.$detailsReportPath);
         }
 
         return $auditReports;
@@ -340,13 +344,30 @@ class PhpCsAuditManager extends BaseManager
      *
      * @param string $reportFile Report file.
      * @return array Report details.
+     * @throws \Exception When report file cannot be decoded.
      */
     public function parseDetailedReport($reportFile)
     {
         try {
             $report = json_decode(file_get_contents($reportFile), true);
         } catch (\Exception $e) {
-            return array();
+            $report = null;
+        }
+
+        // Just because json_decode() didn't throw an exception doesn't mean that $reportFile
+        // was successfully decoded.
+        if (null === $report) {
+            $reportFileError = json_last_error_msg();
+            $message = 'Attempting to parse the report file caused a JSON decoding issue.';
+            if ($reportFileError !== JSON_ERROR_NONE) {
+                $message = 'JSON Error: '.$reportFileError;
+            }
+            throw new \Exception($message);
+        }
+
+        // The files array is empty or missing.
+        if (empty($report['files'])) {
+            throw new \Exception('The report file is missing a list of parsed files.');
         }
 
         unset($report['totals']['fixable']);
@@ -372,6 +393,7 @@ class PhpCsAuditManager extends BaseManager
      * @param boolean $details           Return the detailed report, else PHP compatibility.
      *
      * @return array Details.
+     * @throws \Exception When report file cannot be decoded.
      */
     public function getPHPCompatibilityReport($phpcs_report_file, $details = false)
     {
@@ -404,8 +426,28 @@ class PhpCsAuditManager extends BaseManager
 
         // Only proceed if phpcs successfully created a report file.
         if (file_exists($phpcs_report_file)) {
-            $json = file_get_contents($phpcs_report_file);
-            $json = json_decode($json, true);
+            try {
+                $json = file_get_contents($phpcs_report_file);
+                $json = json_decode($json, true);
+            } catch (\Exception $e) {
+                $json = null;
+            }
+
+            // Just because json_decode() didn't throw an exception doesn't mean that $reportFile was
+            // successfully decoded.
+            if (null === $json) {
+                $reportFileError = json_last_error_msg();
+                $message = 'Attempting to parse the report file caused a JSON decoding issue.';
+                if ($reportFileError !== JSON_ERROR_NONE) {
+                    $message = 'JSON Error: '.$reportFileError;
+                }
+                throw new \Exception($message);
+            }
+
+            // The files array is empty or missing.
+            if (empty($json['files'])) {
+                throw new \Exception('The report file is missing a list of parsed files.');
+            }
 
             // Map errors into an array keyed by PHP version.
             foreach ($json['files'] as $file => $errors) {
@@ -522,7 +564,7 @@ class PhpCsAuditManager extends BaseManager
         if (! $fatal) {
             return $compatible_versions;
         } else {
-            return [ "unknown" ];
+            return array( 'unknown' );
         }
     }
 }
