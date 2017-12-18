@@ -458,7 +458,6 @@ class PhpCsAuditManager extends BaseManager
                 foreach ($errors['messages'] as $message) {
                     if (array_key_exists('source', $message) && $message['source'] === "Internal.Exception") {
                         $fatal = true;
-                        throw new \Exception($message['message']);
                     }
 
                     $php_version = false;
