@@ -355,18 +355,15 @@ class PhpCsAuditManager extends BaseManager
         if (null === $report) {
             $reportFileError = json_last_error_msg();
             $message = 'Attempting to parse the report file caused a JSON decoding issue.';
-            $this->output->writeln('<error>' . $message . '</error>');
             if ($reportFileError !== JSON_ERROR_NONE) {
-                $this->output->writeln('<error>JSON Error: ' . $reportFileError . '</error>');
+                $message = 'JSON Error: '.$reportFileError;
             }
             throw new \Exception($message);
         }
 
         // The files array is empty or missing.
         if (empty($report['files'])) {
-            $message = 'The report file is missing a list of parsed files.';
-            $this->output->writeln('<error>' . $message . '</error>');
-            throw new \Exception($message);
+            throw new \Exception('The report file is missing a list of parsed files.');
         }
 
         unset($report['totals']['fixable']);
@@ -437,18 +434,15 @@ class PhpCsAuditManager extends BaseManager
             if (null === $json) {
                 $reportFileError = json_last_error_msg();
                 $message = 'Attempting to parse the report file caused a JSON decoding issue.';
-                $this->output->writeln('<error>' . $message . '</error>');
                 if ($reportFileError !== JSON_ERROR_NONE) {
-                    $this->output->writeln('<error>JSON Error: ' . $reportFileError . '</error>');
+                    $message = 'JSON Error: '.$reportFileError;
                 }
                 throw new \Exception($message);
             }
 
             // The files array is empty or missing.
             if (empty($json['files'])) {
-                $message = 'The report file is missing a list of parsed files.';
-                $this->output->writeln('<error>' . $message . '</error>');
-                throw new \Exception($message);
+                throw new \Exception('The report file is missing a list of parsed files.');
             }
 
             // Map errors into an array keyed by PHP version.
@@ -566,7 +560,7 @@ class PhpCsAuditManager extends BaseManager
         if (! $fatal) {
             return $compatible_versions;
         } else {
-            return [ "unknown" ];
+            return array( 'unknown' );
         }
     }
 }

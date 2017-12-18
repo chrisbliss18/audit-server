@@ -49,9 +49,9 @@ class AuditsManager extends BaseManager
     /**
      * Constructor.
      *
-     * @param  array $settings Settings.
-     * @param  \XWP\Bundle\AuditServerBundle\Extensions\FilesManager $filesManager  Files manager.
-     * @param  \XWP\Bundle\AuditServerBundle\Extensions\CodeIdentityManager $codeIdentityManager  Code identity manager.
+     * @param array $settings Settings.
+     * @param \XWP\Bundle\AuditServerBundle\Extensions\FilesManager $filesManager  Files manager.
+     * @param \XWP\Bundle\AuditServerBundle\Extensions\CodeIdentityManager $codeIdentityManager  Code identity manager.
      *
      * @return void
      */
@@ -98,7 +98,7 @@ class AuditsManager extends BaseManager
     /**
      * Prepare for audits such as cloning or extracting audits files to destination.
      *
-     * @param  array  $originalAuditsRequest Original audits request.
+     * @param array $originalAuditsRequest Original audits request.
      *
      * @throws \Exception When audit can't be prepared.
      *
@@ -149,9 +149,8 @@ class AuditsManager extends BaseManager
                 try {
                     $created = $this->filesManager->cloneRepo($auditsRequest['sourceUrl'], $auditsFilesDirectory);
                 } catch (\Exception $e) {
-                    $message = 'Repository could not be cloned for this audit.';
-                    $this->output->writeln('<error>' . $message . '</error>');
-                    throw new \Exception($message);
+                    $this->output->writeln('<error>' . $e . '</error>');
+                    throw new \Exception('Git repository could not be cloned for this audit.');
                 }
                 break;
             case 'zip':
@@ -164,9 +163,8 @@ class AuditsManager extends BaseManager
                         $auditsFilesDirectory
                     );
                 } catch (\Exception $e) {
-                    $message = 'File could not be downloaded for this audit.';
-                    $this->output->writeln('<error>' . $message . '</error>');
-                    throw new \Exception($message);
+                    $this->output->writeln('<error>' . $e . '</error>');
+                    throw new \Exception('Source archive could not be downloaded for this audit.');
                 }
                 break;
             default:
@@ -194,9 +192,9 @@ class AuditsManager extends BaseManager
      *
      * @todo: Need improvement.
      *
-     * @param  array  $originalAuditsRequest Original requests.
+     * @param array $originalAuditsRequest Original requests.
      *
-     * @return bool                        Whether or not the request format is validated.
+     * @return bool Whether or not the request format is validated.
      */
     public function validateOriginalAuditsRequest($originalAuditsRequest)
     {
@@ -213,12 +211,12 @@ class AuditsManager extends BaseManager
     /**
      * Run audits.
      *
-     * @param  array $auditsRequest        Audits request.
-     * @param  array $existingAuditReports Existing audit reports.
+     * @param array $auditsRequest Audits request.
+     * @param array $existingAuditReports Existing audit reports.
      *
      * @throws \Exception When an audit can't be processed.
      *
-     * @return array           Audits results.
+     * @return array Audits results.
      */
     public function runAudits($auditsRequest = array(), $existingAuditReports = array())
     {
@@ -354,11 +352,11 @@ class AuditsManager extends BaseManager
                     }
                 }
             } catch (\Exception $e) {
-                $message = 'Unexpected error occurred during audit';
+                $message = 'An unexpected error occurred during the audit.';
                 $error   = array(
                     'error' => $message,
                 );
-                $this->output->writeln('<error>' . $message . '</error>');
+                $this->output->writeln('<error>' . $e . '</error>');
                 $results = $error;
             }
 
