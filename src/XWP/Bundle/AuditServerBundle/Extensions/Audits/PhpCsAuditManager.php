@@ -126,8 +126,8 @@ class PhpCsAuditManager extends BaseManager
 
         // Ensure utf-8 encoding is the default.
         if (empty($options['encoding'])) {
-			$options['encoding'] = 'utf-8';
-		}
+            $options['encoding'] = 'utf-8';
+        }
 
         $stringOptions = '';
         foreach ($options as $option => $value) {
