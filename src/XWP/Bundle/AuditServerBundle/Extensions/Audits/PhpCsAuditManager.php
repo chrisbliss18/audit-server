@@ -124,6 +124,11 @@ class PhpCsAuditManager extends BaseManager
             "({$auditsRequest['sourceType']})</info>"
         );
 
+        // Ensure utf-8 encoding is the default.
+        if (empty($options['encoding'])) {
+			$options['encoding'] = 'utf-8';
+		}
+
         $stringOptions = '';
         foreach ($options as $option => $value) {
             if ('runtime-set' === $option) {
@@ -136,8 +141,7 @@ class PhpCsAuditManager extends BaseManager
         $fullReportFilename = $auditsFilesChecksum.'-phpcs-'.$this->auditStandardKey.'-full.'.$options['report'];
         $fullReportPath = $auditsReportsDirectory . '/' . $fullReportFilename;
 
-        $command = "phpcs $stringOptions --encoding=utf-8 " .
-                   "--report-{$options['report']}=$fullReportPath $auditsFilesDirectory -q";
+        $command = "phpcs $stringOptions --report-{$options['report']}=$fullReportPath $auditsFilesDirectory -q";
 
         list ( $output, $err ) = Helpers\ExecHelper::run($command, true, true);
 
