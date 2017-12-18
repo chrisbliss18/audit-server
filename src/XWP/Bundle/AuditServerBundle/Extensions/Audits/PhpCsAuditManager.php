@@ -136,7 +136,8 @@ class PhpCsAuditManager extends BaseManager
         $fullReportFilename = $auditsFilesChecksum.'-phpcs-'.$this->auditStandardKey.'-full.'.$options['report'];
         $fullReportPath = $auditsReportsDirectory . '/' . $fullReportFilename;
 
-        $command = "phpcs $stringOptions --encoding=utf-8 --report-{$options['report']}=$fullReportPath $auditsFilesDirectory -q";
+        $command = "phpcs $stringOptions --encoding=utf-8 " .
+                   "--report-{$options['report']}=$fullReportPath $auditsFilesDirectory -q";
 
         list ( $output, $err ) = Helpers\ExecHelper::run($command, true, true);
 
