@@ -152,6 +152,7 @@ class LaunchAuditServerCommand extends EndlessContainerAwareCommand
                 $errorMessage = 'Cannot prepare the audit.';
                 $this->logger->error($errorMessage, [ 'originalAuditsRequest' => $originalAuditsRequest ]);
                 $output->writeln('<error>' . $errorMessage . '</error>');
+                $output->writeln('<error>' . $e . '</error>');
                 $hasError = true;
             }
         }
