@@ -49,8 +49,8 @@ class CodeIdentityManager extends BaseManager
         foreach ($plugin_theme_header as $key => $value) {
             if ($value) {
                 $codeInfo['details'][] = array(
-                    'key' => $key,
-                    'value' => $value,
+                    'key' => mb_convert_encoding($key, "UTF-8"),
+                    'value' => mb_convert_encoding($value, "UTF-8"),
                 );
             }
         }
