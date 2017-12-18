@@ -362,6 +362,13 @@ class PhpCsAuditManager extends BaseManager
             throw new \Exception($message);
         }
 
+        // The files array is empty or missing.
+        if (empty($report['files'])) {
+            $message = 'The report file is missing a list of parsed files.';
+            $this->output->writeln('<error>' . $message . '</error>');
+            throw new \Exception($message);
+        }
+
         unset($report['totals']['fixable']);
         foreach ($report['files'] as $file => $issues) {
             // Get the file name only.
