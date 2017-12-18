@@ -354,9 +354,11 @@ class AuditsManager extends BaseManager
                     }
                 }
             } catch (\Exception $e) {
+                $message = 'Unexpected error occurred during audit';
                 $error   = array(
-                    'error' => $e,
+                    'error' => $message,
                 );
+                $this->output->writeln('<error>' . $message . '</error>');
                 $results = $error;
             }
 
