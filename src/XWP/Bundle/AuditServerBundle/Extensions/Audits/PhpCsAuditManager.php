@@ -169,6 +169,8 @@ class PhpCsAuditManager extends BaseManager
                 'bucketName' => $this->s3BucketName,
                 'key'        => $fullReportFilename,
             );
+        } else {
+            throw new \Exception('The full report file does not exist on the server. '.$fullReportPath);
         }
 
         $detailsReportFilename = $auditsFilesChecksum.'-phpcs-'.$this->auditStandardKey.'-details.'.$options['report'];
@@ -200,6 +202,8 @@ class PhpCsAuditManager extends BaseManager
                 'bucketName' => $this->s3BucketName,
                 'key'        => $detailsReportFilename,
             );
+        } else {
+            throw new \Exception('The detailed report file does not exist on the server. '.$detailsReportPath);
         }
 
         return $auditReports;
