@@ -554,19 +554,19 @@ class PhpCsAuditManager extends BaseManager
                 $compatible_versions[] = $php_version;
             }
         } else {
-			throw new \Exception('The report file is missing.');
+            throw new \Exception('The report file is missing.');
         }
 
-		// If fatal.
-		if ($fatal) {
-			$compatible_versions = array( 'unknown' );
-		}
+        // If fatal.
+        if ($fatal) {
+            $compatible_versions = array( 'unknown' );
+        }
 
         // Return the results.
         if (true === $details) {
             return array_merge($counts, $compat);
         }
 
-		return $compatible_versions;
+        return $compatible_versions;
     }
 }
