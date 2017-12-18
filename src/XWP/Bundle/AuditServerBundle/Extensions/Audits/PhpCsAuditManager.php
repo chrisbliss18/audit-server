@@ -241,7 +241,7 @@ class PhpCsAuditManager extends BaseManager
             ( ! empty($existingAuditReports[$auditReportKey])
               && array_key_exists('error', $existingAuditReports[$auditReportKey])) ||
             // It's been forced for re-audit.
-            true === $auditsRequest['force'];
+            true === filter_var( $auditsRequest['force'], FILTER_VALIDATE_BOOLEAN );
 
         if ($exists && ! $ignoreExisting) {
             $this->output->writeln(
