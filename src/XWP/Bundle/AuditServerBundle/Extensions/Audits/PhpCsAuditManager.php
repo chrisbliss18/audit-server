@@ -140,7 +140,7 @@ class PhpCsAuditManager extends BaseManager
 
         $fullReportFilename = $auditsFilesChecksum.'-phpcs-'.$this->auditStandardKey.'-full.'.$options['report'];
         $fullReportPath = $auditsReportsDirectory . '/' . $fullReportFilename;
-        
+
         $command = "phpcs $stringOptions --report-{$options['report']}=$fullReportPath $auditsFilesDirectory -q";
 
         list ( $output, $err ) = Helpers\ExecHelper::run($command, true, true);
