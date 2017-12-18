@@ -458,6 +458,7 @@ class PhpCsAuditManager extends BaseManager
                 foreach ($errors['messages'] as $message) {
                     if (array_key_exists('source', $message) && $message['source'] === "Internal.Exception") {
                         $fatal = true;
+                        throw new \Exception($message['message']);
                     }
 
                     $php_version = false;
@@ -521,9 +522,18 @@ class PhpCsAuditManager extends BaseManager
                             }
                         }
 
-                        // If the message contains 'since' any higher versions are not compatible.
-                        if (false !== strpos($message['message'], 'since')) {
-                            if (false === $highest_version || version_compare($php_version, $lowest_version, '<')) {
+                        $regex_version = '\s*((?:[0-9]+\.?)+)';
+                        $pattern = "/deprecated since PHP $regex_version and removed since PHP $regex_version/i";
+
+                        if (preg_match($pattern, $message['message'], $matches)) {
+                            // If the message contains 'removed since' any higher versions are not compatible.
+                            if (false === $highest_version || version_compare($matches[2], $highest_version, '<')) {
+                                $highest_version = $matches[2];
+                            }
+                        } elseif (false !== strpos($message['message'], 'since')
+                            || false !== strpos($message['message'], 'prior to')) {
+                            // If the message contains 'since' any higher versions are not compatible.
+                            if (false === $highest_version || version_compare($php_version, $highest_version, '<')) {
                                 $highest_version = $php_version;
                             }
                         }
@@ -546,7 +556,7 @@ class PhpCsAuditManager extends BaseManager
                 }
 
                 // If the highest version was found, don't add any higher versions.
-                if (false !== $highest_version && version_compare($php_version, $lowest_version, '>=')) {
+                if (false !== $highest_version && version_compare($php_version, $highest_version, '>=')) {
                     continue;
                 }
 
