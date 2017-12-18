@@ -50,8 +50,8 @@ class AuditsManager extends BaseManager
      * Constructor.
      *
      * @param array $settings Settings.
-     * @param \XWP\Bundle\AuditServerBundle\Extensions\FilesManager $filesManager  Files manager.
-     * @param \XWP\Bundle\AuditServerBundle\Extensions\CodeIdentityManager $codeIdentityManager  Code identity manager.
+     * @param \XWP\Bundle\AuditServerBundle\Extensions\FilesManager $filesManager Files manager.
+     * @param \XWP\Bundle\AuditServerBundle\Extensions\CodeIdentityManager $codeIdentityManager Code identity manager.
      *
      * @return void
      */
@@ -66,7 +66,7 @@ class AuditsManager extends BaseManager
      * Set audit manager.
      *
      * @param string $managerName Audit manager name.
-     * @param object $manager     Audit manager.
+     * @param object $manager Audit manager.
      *
      * @return  void
      */
@@ -283,14 +283,6 @@ class AuditsManager extends BaseManager
 
         $existingAuditReportsKeys = array_keys($existingAuditReports);
 
-        if (isset($auditsRequest['codeInfo']['cloc']['php'])) {
-            $linesOfCode = $auditsRequest['codeInfo']['cloc']['php']['code'];
-        } else {
-            // Default to 100.
-            $linesOfCode = 100;
-        }
-
-        $auditRatings = array();
         foreach ($audits as $key => $audit) {
             $auditOptions = ! empty($audit['options']) ? $audit['options'] : array();
             $audit_standard = ! empty($auditOptions['standard']) ? strtolower(trim($auditOptions['standard'])) : false;
