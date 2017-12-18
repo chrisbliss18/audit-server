@@ -428,7 +428,6 @@ class PhpCsAuditManager extends BaseManager
             try {
                 $json = file_get_contents($phpcs_report_file);
                 $json = json_decode($json, true);
-                $reportFileError = json_last_error_msg();
             } catch (\Exception $e) {
                 $json = null;
             }
@@ -442,6 +441,13 @@ class PhpCsAuditManager extends BaseManager
                 if ($reportFileError !== JSON_ERROR_NONE) {
                     $this->output->writeln('<error>JSON Error: ' . $reportFileError . '</error>');
                 }
+                throw new \Exception($message);
+            }
+
+            // The files array is empty or missing.
+            if (empty($json['files'])) {
+                $message = 'The report file is missing a list of parsed files.';
+                $this->output->writeln('<error>' . $message . '</error>');
                 throw new \Exception($message);
             }
 
