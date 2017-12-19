@@ -410,11 +410,13 @@ class PhpCsAuditManager extends BaseManager
             '7.2',
         );
 
-        $compatible_versions = array(); // PHP versions that this code is compatible with.
-        $compat              = array(); // Sniff results keyed by PHP version.
-        $fatal               = false; // If `phpcs` cannot continue.
-        $highest_version     = false; // Non-existent purposefully high version.
-        $lowest_version      = false; // Non-existent purposefully low version.
+        $compatible_versions      = array(); // PHP versions that this code is compatible with.
+        $compat                   = array(); // Sniff results keyed by PHP version.
+        $fatal                    = false; // If `phpcs` cannot continue.
+        $highest_excluded_version = false; // Non-existent purposefully high excluded version.
+        $highest_included_version = false; // Non-existent purposefully high included version.
+        $lowest_excluded_version  = false; // Non-existent purposefully low excluded version.
+        $lowest_included_version  = false; // Non-existent purposefully low included version.
 
         // Count issues.
         $counts = array(
@@ -514,17 +516,53 @@ class PhpCsAuditManager extends BaseManager
 
                     // Ensure only errors with a version number make it through.
                     if ('general' !== $php_version && 'ERROR' === $message['type']) {
-                        // If the message contains 'earlier' any lower versions are not compatible.
-                        if (false !== strpos($message['message'], 'earlier')) {
-                            if (false === $lowest_version || version_compare($php_version, $lowest_version, '>')) {
-                                $lowest_version = $php_version;
+                        $regex_version = '\s*((?:[0-9]+\.?)+)';
+                        $pattern = "/in PHP < $regex_version/i";
+
+                        // If the message contains 'in PHP < ' any lower versions are not compatible.
+                        if (preg_match($pattern, $message['message'], $matches) && !empty($matches[1])) {
+                            if (false === $lowest_included_version
+                                || version_compare($matches[1], $lowest_included_version, '>')) {
+                                $lowest_included_version = $matches[1];
                             }
                         }
 
-                        // If the message contains 'since' any higher versions are not compatible.
-                        if (false !== strpos($message['message'], 'since')) {
-                            if (false === $highest_version || version_compare($php_version, $lowest_version, '<')) {
-                                $highest_version = $php_version;
+                        // If the message contains 'earlier' then this version, and any lower, are not compatible.
+                        if (false !== strpos($message['message'], 'earlier')) {
+                            if (false === $lowest_excluded_version
+                                || version_compare($php_version, $lowest_excluded_version, '>')) {
+                                $lowest_excluded_version = $php_version;
+                            }
+                        }
+
+                        $pattern = "/deprecated since PHP $regex_version and removed since PHP $regex_version/i";
+
+                        if (preg_match($pattern, $message['message'], $matches) && !empty($matches[2])) {
+                            // If the message contains 'removed since' then this version,
+                            // and any higher, are not compatible.
+                            if (false === $highest_excluded_version
+                                || version_compare($matches[2], $highest_excluded_version, '<')) {
+                                $highest_excluded_version = $matches[2];
+                            }
+                        } elseif (false !== strpos($message['message'], 'available since')) {
+                            // If the message contains 'available since' any lower versions are not compatible.
+                            if (false === $lowest_included_version
+                                || version_compare($php_version, $lowest_included_version, '>')) {
+                                $lowest_included_version = $php_version;
+                            }
+                        } elseif (false !== strpos($message['message'], 'since')) {
+                            // If the message contains 'since' then this version, and any higher, are not compatible.
+                            if (false === $highest_excluded_version
+                                || version_compare($php_version, $highest_excluded_version, '<')) {
+                                $highest_excluded_version = $php_version;
+                            }
+                        }
+
+                        if (false !== strpos($message['message'], 'prior to')) {
+                            // If the message contains 'since' then this version, and any higher, are not compatible.
+                            if (false === $highest_excluded_version
+                                || version_compare($php_version, $highest_excluded_version, '<')) {
+                                $highest_excluded_version = $php_version;
                             }
                         }
                     }
@@ -540,13 +578,27 @@ class PhpCsAuditManager extends BaseManager
                     continue;
                 }
 
-                // If the lowest version was found, don't add any lower versions.
-                if (false !== $lowest_version && version_compare($php_version, $lowest_version, '<=')) {
+                // If the lowest included version was found, don't add any lower versions.
+                if (false !== $lowest_included_version
+                    && version_compare($php_version, $lowest_included_version, '<')) {
                     continue;
                 }
 
-                // If the highest version was found, don't add any higher versions.
-                if (false !== $highest_version && version_compare($php_version, $lowest_version, '>=')) {
+                // If the lowest excluded version was found, don't add any lower versions and this version.
+                if (false !== $lowest_excluded_version
+                    && version_compare($php_version, $lowest_excluded_version, '<=')) {
+                    continue;
+                }
+
+                // If the lowest included version was found, don't add any lower versions.
+                if (false !== $highest_included_version
+                    && version_compare($php_version, $highest_included_version, '>')) {
+                    continue;
+                }
+
+                // If the highest excluded version was found, don't add any higher versions and this version.
+                if (false !== $highest_excluded_version
+                    && version_compare($php_version, $highest_excluded_version, '>=')) {
                     continue;
                 }
 
