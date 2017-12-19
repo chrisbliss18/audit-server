@@ -550,8 +550,15 @@ class PhpCsAuditManager extends BaseManager
                                 || version_compare($php_version, $lowest_included_version, '>')) {
                                 $lowest_included_version = $php_version;
                             }
-                        } elseif (false !== strpos($message['message'], 'since')
-                            || false !== strpos($message['message'], 'prior to')) {
+                        } elseif (false !== strpos($message['message'], 'since')) {
+                            // If the message contains 'since' then this version, and any higher, are not compatible.
+                            if (false === $highest_excluded_version
+                                || version_compare($php_version, $highest_excluded_version, '<')) {
+                                $highest_excluded_version = $php_version;
+                            }
+                        }
+
+                        if (false !== strpos($message['message'], 'prior to')) {
                             // If the message contains 'since' then this version, and any higher, are not compatible.
                             if (false === $highest_excluded_version
                                 || version_compare($php_version, $highest_excluded_version, '<')) {
