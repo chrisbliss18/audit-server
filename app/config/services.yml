@@ -89,12 +89,6 @@ services:
         calls:
             - [setLogger, ['@app.logger_manager']]
 
-    app.aws_sqs_lh_manager:
-        class:     XWP\Bundle\AuditServerBundle\Extensions\AwsSqsManager
-        arguments: ['%aws_sqs_lh_settings%']
-        calls:
-            - [setLogger, ['@app.logger_manager']]
-
     app.stats_manager:
         class:     XWP\Bundle\AuditServerBundle\Extensions\StatsManager
         calls:

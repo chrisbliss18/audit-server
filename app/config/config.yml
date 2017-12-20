@@ -31,13 +31,6 @@ parameters:
         key: "%aws_sqs_key%"
         secret: "%aws_sqs_secret%"
         queue_name: "%aws_sqs_queue_name%"
-    aws_sqs_lh_settings:
-        version: "%aws_sqs_lh_version%"
-        region: "%aws_sqs_lh_region%"
-        key: "%aws_sqs_lh_key%"
-        secret: "%aws_sqs_lh_secret%"
-        queue_name: "%aws_sqs_lh_queue_name%"
-        queue_enabled: "%aws_sqs_lh_queue_enabled%"
     aws_s3_settings:
         version: "%aws_s3_version%"
         region: "%aws_s3_region%"
