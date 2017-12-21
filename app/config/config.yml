@@ -17,6 +17,7 @@ parameters:
         scripts_path: "%audit_scripts_path%"
         standards_path: "%audit_standards_path%"
         stats_path: "%audit_stats_path%"
+        phpcs_parallel: "%audit_phpcs_parallel%"
     logger_settings:
         name: Tide
         handlers:

@@ -1,4 +1,7 @@
 parameters:
+    # Defaults
+    env(AUDIT_PHPCS_PARALLEL): 1
+    # Get from env()
     secret: "%env(SECRET)%"
     mailer_transport: "%env(MAILER_TRANSPORT)%"
     mailer_host: "%env(MAILER_HOST)%"
@@ -28,3 +31,4 @@ parameters:
     audit_scripts_path: "%env(AUDIT_SCRIPTS_PATH)%"
     audit_standards_path: "%env(AUDIT_STANDARDS_PATH)%"
     audit_stats_path: "%env(AUDIT_STATS_PATH)%"
+    audit_phpcs_parallel: "%env(AUDIT_PHPCS_PARALLEL)%"
