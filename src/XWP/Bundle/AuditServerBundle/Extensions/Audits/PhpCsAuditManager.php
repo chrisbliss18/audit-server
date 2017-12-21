@@ -78,7 +78,7 @@ class PhpCsAuditManager extends BaseManager
             'extensions' => 'php',
             'report'     => 'json',
             'ignore'     => '*/vendor/*,*/node_modules/*',
-            'parallel'   => 1,
+            'parallel'   => $this->settings['phpcs_parallel'],
         );
     }
 
