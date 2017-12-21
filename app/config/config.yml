@@ -14,7 +14,6 @@ parameters:
         auth_url: "%tide_api_auth_url%"
         connect_timeout: "%tide_api_connect_timeout%"
     audit_settings:
-        scripts_path: "%audit_scripts_path%"
         standards_path: "%audit_standards_path%"
         stats_path: "%audit_stats_path%"
         phpcs_parallel: "%audit_phpcs_parallel%"
