@@ -29,13 +29,6 @@ class LaunchAuditServerCommand extends EndlessContainerAwareCommand
     private $awsSqsManager;
 
     /**
-     * AWS SQS Lighthouse manager.
-     *
-     * @var \XWP\Bundle\AuditServerBundle\Extensions\AwsSqsManager
-     */
-    private $awsSqsLhManager;
-
-    /**
      * API manager.
      *
      * @var \XWP\Bundle\AuditServerBundle\Extensions\ApiManager
@@ -94,7 +87,6 @@ class LaunchAuditServerCommand extends EndlessContainerAwareCommand
         $this->auditsManager->setOutput($output);
         $this->apiManager = $this->getContainer()->get('app.api_manager');
         $this->awsSqsManager = $this->getContainer()->get('app.aws_sqs_manager');
-        $this->awsSqsLhManager = $this->getContainer()->get('app.aws_sqs_lh_manager');
         $this->statsManager = $this->getContainer()->get('app.stats_manager');
 
         $this->isStatsEnabled = $input->getOption('enableStats');
@@ -161,26 +153,6 @@ class LaunchAuditServerCommand extends EndlessContainerAwareCommand
             try {
                 $existingAuditReports = $this->apiManager->checkForExistingAuditReports($auditsRequest);
                 $auditsRequestReports = $this->auditsManager->runAudits($auditsRequest, $existingAuditReports);
-
-                // Themes will get a Lighthouse Audit if AWS_SQS_LH_QUEUE_ENABLED is set to `yes`.
-                $lhQueueEnabled = $this->awsSqsLhManager->getSetting('queue_enabled', 'no');
-                if ('yes' === strtolower($lhQueueEnabled) && 'theme' === $auditsRequest['codeInfo']['type']) {
-                    if (empty($existingAuditReports['lighthouse']) || array_key_exists(
-                        'error',
-                        $existingAuditReports['lighthouse']
-                    ) || true === $auditsRequest['force']) {
-                        $sqsTask = $this->auditsManager->prepareThemeTaskForSQS($originalAuditsRequest, $auditsRequest);
-                        if (! empty($sqsTask) && $this->awsSqsLhManager->createAuditTask($sqsTask)) {
-                            $output->writeln('<info>Theme submitted for Lighthouse Audit.</info>');
-                        } else {
-                            $output->writeln('<info>Theme could not be submitted for Lighthouse Audit.</info>');
-                        }
-                    } else {
-                        $output->writeln(
-                            '<info>The Lighthouse audit report already exists. Skipping running audit...</info>'
-                        );
-                    }
-                }
 
                 $auditsRequestStatus = $this->auditsManager->getAuditsRequestOverallStatus();
             } catch (\Exception $e) {
