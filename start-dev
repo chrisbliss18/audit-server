@@ -1,0 +1,39 @@
+function usage()
+{
+    echo "if this was a real script you would see something useful here"
+    echo ""
+    echo "./start-dev"
+    echo -e "\t-h --help"
+    echo -e "\t-xd --xdebug"
+    echo ""
+}
+
+XDEBUG_ENABLED=0
+while [ "$1" != "" ]; do
+    PARAM=`echo $1 | awk -F= '{print $1}'`
+    VALUE=`echo $1 | awk -F= '{print $2}'`
+    case $PARAM in
+        -h | --help)
+            usage
+            exit
+            ;;
+         -xd | --xdebug)
+            XDEBUG_ENABLED=1
+            break
+            ;;
+        *)
+            echo "ERROR: unknown parameter \"$PARAM\""
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+if [ $XDEBUG_ENABLED = 1 ]; then
+  echo "Starting the audit server with Xdebug enabled"
+  php -d xdebug.profiler_enable=on bin/console tide:audit-server --env=dev
+else
+  echo "Starting the audit server"
+  php bin/console tide:audit-server --env=dev -v
+fi

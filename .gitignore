@@ -1,0 +1,23 @@
+/build/
+/phpunit.xml
+/var/*
+!/var/cache
+/var/cache/*
+!var/cache/.gitkeep
+!/var/logs
+/var/logs/*
+!var/logs/.gitkeep
+!/var/sessions
+/var/sessions/*
+!var/sessions/.gitkeep
+!var/SymfonyRequirements.php
+/vendor/
+/web/bundles/
+
+# Docker
+.env
+
+# Composer
+audit-standards/phpcs/php-compatibility/
+audit-standards/phpcs/wpcs/
+vendor

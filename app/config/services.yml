@@ -1,0 +1,97 @@
+# Learn more about services, parameters and containers at
+# http://symfony.com/doc/current/service_container.html
+parameters:
+#    parameter_name: value
+
+services:
+#    service_name:
+#        class: AppBundle\Directory\ClassName
+#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+
+    app.logger_manager:
+        class: XWP\Bundle\AuditServerBundle\Extensions\LoggerManager
+        arguments: ['%logger_settings%', "%kernel.logs_dir%/%kernel.environment%.log"]
+
+    app.listener.command_exception:
+            class: XWP\Bundle\AuditServerBundle\Listeners\ConsoleExceptionListener
+            arguments: ['@app.logger_manager']
+            tags:
+                - { name: kernel.event_listener, event: console.exception }
+
+    app.listener.command_error:
+           class: XWP\Bundle\AuditServerBundle\Listeners\ConsoleTerminateListener
+           arguments: ['@app.logger_manager']
+           tags:
+               - { name: kernel.event_listener, event: console.terminate }
+
+    app.aws_s3_manager:
+        class:     XWP\Bundle\AuditServerBundle\Extensions\AwsS3Manager
+        arguments: ['%aws_s3_settings%']
+        calls:
+            - [setLogger, ['@app.logger_manager']]
+
+    app.phpcs_audit_manager:
+        class:     XWP\Bundle\AuditServerBundle\Extensions\Audits\PhpCsAuditManager
+        arguments: ['%audit_settings%', '@app.aws_s3_manager']
+        calls:
+            - [setLogger, ['@app.logger_manager']]
+
+    app.files_manager:
+        class:     XWP\Bundle\AuditServerBundle\Extensions\FilesManager
+        calls:
+            - [setLogger, ['@app.logger_manager']]
+
+    app.array_helper:
+        class:     XWP\Bundle\AuditServerBundle\Extensions\Helpers\ArrayHelper
+
+    app.stopwatch_helper:
+        class:     XWP\Bundle\AuditServerBundle\Extensions\Helpers\StopwatchHelper
+
+    app.stats_helper:
+        class:     XWP\Bundle\AuditServerBundle\Extensions\Helpers\StatsHelper
+        calls:
+          - [setStatsPath, ['%audit_settings%']]
+
+    app.yaml_helper:
+        class:    XWP\Bundle\AuditServerBundle\Extensions\Helpers\YamlHelper
+
+    app.code_identity_manager:
+        class:     XWP\Bundle\AuditServerBundle\Extensions\CodeIdentityManager
+        calls:
+            - [setLogger, ['@app.logger_manager']]
+
+    app.audits_manager:
+        class:     XWP\Bundle\AuditServerBundle\Extensions\AuditsManager
+        arguments: ['%audit_settings%', '@app.files_manager', '@app.code_identity_manager']
+        calls:
+            - [setAuditManager, ['phpcs', '@app.phpcs_audit_manager']]
+            - [setHelper, ['array', '@app.array_helper']]
+            - [setPhpCsStandards, ['%audit_settings%']]
+            - [setLogger, ['@app.logger_manager']]
+
+    app.api_manager:
+        class:     XWP\Bundle\AuditServerBundle\Extensions\ApiManager
+        arguments: ['%tide_api_settings%']
+        calls:
+            - [setHelper, ['array', '@app.array_helper']]
+            - [getAuthToken, ['%tide_api_settings%']]
+            - [setLogger, ['@app.logger_manager']]
+
+    app.email_manager:
+        class:     XWP\Bundle\AuditServerBundle\Extensions\EmailManager
+        arguments: ['@mailer', '@templating']
+        calls:
+            - [setLogger, ['@app.logger_manager']]
+
+    app.aws_sqs_manager:
+        class:     XWP\Bundle\AuditServerBundle\Extensions\AwsSqsManager
+        arguments: ['%aws_sqs_settings%']
+        calls:
+            - [setLogger, ['@app.logger_manager']]
+
+    app.stats_manager:
+        class:     XWP\Bundle\AuditServerBundle\Extensions\StatsManager
+        calls:
+            - [setLogger, ['@app.logger_manager']]
+            - [setHelper, ['stopwatch', '@app.stopwatch_helper']]
+            - [setHelper, ['stats', '@app.stats_helper']]

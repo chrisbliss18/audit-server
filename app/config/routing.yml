@@ -1,0 +1,4 @@
+xwp_audit_server:
+    resource: "@XWPAuditServerBundle/Controller/"
+    type:     annotation
+    prefix:   /
