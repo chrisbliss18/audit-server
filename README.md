@@ -2,8 +2,6 @@
 
 [![Build Status](https://travis-ci.org/wptide/audit-server.svg?branch=master)](https://travis-ci.org/wptide/audit-server) [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
-**This repository is rapidly changing and under heavy development while being migrated from private to public. If you can see this message we have not yet finalized the migration.**
-
 **NOTE:** Please see documentation for [Tide Local](https://github.com/wptide/tide-local) to start the audit polling process.
 
 The Audit Server is a Symfony commandline app that is responsible for polling a given SQS queue for new audit tasks to perform. These tasks are then run against the given standards (defined in the SQS task). Upon completion the tasks are sent back to the [Tide API](https://github.com/wptide/api).
