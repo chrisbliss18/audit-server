@@ -23,38 +23,32 @@ RUN apt-get install -y software-properties-common && \
 
 #
 #--------------------------------------------------------------------------
-# Software's Installation
+# PHP Installation
 #--------------------------------------------------------------------------
 #
 
-# Install "PHP Extentions", "libraries", "Software's"
+# Install extentions & libraries
 RUN apt-get update && \
     apt-get install -y --force-yes \
-        php7.0-cli \
-        php7.0-common \
-        php7.0-curl \
-        php-curl \
-        php7.0-json \
-        php7.0-xml \
-        php7.0-xml \
-        php7.0-mbstring \
-        php-mbstring \
-        php7.0-mcrypt \
-        php7.0-mysql \
-        php7.0-pgsql \
-        php7.0-sqlite \
-        php7.0-sqlite3 \
-        php7.0-zip \
-        php-zip \
-        php7.0-yaml \
-        php7.0-bcmath \
-        php7.0-memcached \
-        php7.0-gd \
-        php7.0-intl \
-        php-intl \
-        php-xml \
+        php7.1-cli \
+        php7.1-common \
+        php7.1-curl \
+        php7.1-json \
+        php7.1-xml \
+        php7.1-mbstring \
+        php7.1-mcrypt \
+        php7.1-mysql \
+        php7.1-pgsql \
+        php7.1-sqlite \
+        php7.1-sqlite3 \
+        php7.1-zip \
+        php7.1-yaml \
+        php7.1-bcmath \
+        php7.1-memcached \
+        php7.1-gd \
+        php7.1-intl \
+        php7.1-dev \
         pkg-config \
-        php-dev \
         libcurl4-openssl-dev \
         libedit-dev \
         libssl-dev \
