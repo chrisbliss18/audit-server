@@ -118,7 +118,7 @@ class PhpCsAuditManager extends BaseManager
         //     'encoding'    => 'utf-8',
         //     'runtime-set' => 'testVersion 5.2-',
         // );
-        // @codingStandardsIgnoreStart
+        // @codingStandardsIgnoreEnd
 
         $options = array_merge($this->defaultOptions, $options);
         $this->auditStandardKey = $this->setAuditStandardKey($options);
