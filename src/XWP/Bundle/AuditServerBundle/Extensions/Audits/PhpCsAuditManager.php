@@ -112,7 +112,7 @@ class PhpCsAuditManager extends BaseManager
         // $options = array(
         //     'standard'    => 'phpcompatibility',
         //     'extensions'  => 'php',
-        //     'report'      => 'json', */
+        //     'report'      => 'json',
         //     'ignore'      => '*/vendor/*,*/node_modules/*',
         //     'parallel'    => '1',
         //     'encoding'    => 'utf-8',
