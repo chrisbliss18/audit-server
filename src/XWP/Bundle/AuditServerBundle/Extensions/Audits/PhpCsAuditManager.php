@@ -155,9 +155,10 @@ class PhpCsAuditManager extends BaseManager
         $fullReportFilename = $auditsFilesChecksum.'-phpcs-'.$this->auditStandardKey.'-full.'.$options['report'];
         $fullReportPath = $auditsReportsDirectory . '/' . $fullReportFilename;
 
+        // @codingStandardsIgnoreStart
         // Example of what $command for "phpcompatibility" standard would look like:
-        // "phpcs  --standard=phpcompatibility --extensions=php --report=json --ignore=*/vendor/*,*/node_modules/*
-        // --parallel=1 --encoding=utf-8 --runtime-set testVersion 5.2- --report-json=[/path/to/report] [/path/to/files] -q"
+        // "phpcs  --standard=phpcompatibility --extensions=php --report=json --ignore=*/vendor/*,*/node_modules/* --parallel=1 --encoding=utf-8 --runtime-set testVersion 5.2- --report-json=[/path/to/report] [/path/to/files] -q"
+        // @codingStandardsIgnoreEnd
 
         $command = "phpcs $stringOptions --report-{$options['report']}=$fullReportPath $auditsFilesDirectory -q";
 
