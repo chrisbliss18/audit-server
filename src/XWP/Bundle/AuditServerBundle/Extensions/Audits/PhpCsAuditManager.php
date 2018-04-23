@@ -465,14 +465,14 @@ class PhpCsAuditManager extends BaseManager
                     if (preg_match('/(?:PHP|PHP version|PHP <|since) (\d(?:\.\d)*)/i', $message['message'], $match)) {
                         // Should match all known PHPCompatibility output messages that include the PHP version.
                         $php_version = $match[1];
-                    } else if(preg_match('/\d(?:\.\d)+/', $message['message'], $match)) {
+                    } elseif (preg_match('/\d(?:\.\d)+/', $message['message'], $match)) {
                         // Grasping at straws in case something slips through. To prevent from matching on any number,
                         // this pattern matches only Major.Minor and Major.Minor.Release and not just Major.
                         $php_version = $match['0'];
                     } else {
                         $php_version = 'general';
                     }
-                    if (false === strpos($php_version, '.')) {
+                    if (false === strpos($php_version, '.') && 'general' !== $php_version) {
                         // Add sane minor version numbers if only a major version was found.
                         if ('5' === $php_version) {
                             $php_version = '5.2';
