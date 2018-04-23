@@ -462,24 +462,23 @@ class PhpCsAuditManager extends BaseManager
                         $fatal = true;
                     }
 
-                    $php_version = false;
-                    $match = [];
-                    preg_match('/(\d)(.\d)+/', $message['message'], $match);
-                    if (! isset($match['0'])) {
-                        // Perhaps the version is just 'since PHP 7' or sth similar.
-                        preg_match('/PHP (\d)/', $message['message'], $match);
-                        if (isset($match['1'])) {
-                            if ('5' === $match['1']) {
-                                $php_version = $match['1'] . '.2';
-                            } else {
-                                $php_version = $match['1'] . '.0';
-                            }
-                        }
-                    } else {
+                    if (preg_match('/(?:PHP|PHP version|PHP <|since) (\d(?:\.\d)*)/i', $message['message'], $match)) {
+                        // Should match all known PHPCompatibility output messages that include the PHP version.
+                        $php_version = $match[1];
+                    } else if(preg_match('/\d(?:\.\d)+/', $message['message'], $match)) {
+                        // Grasping at straws in case something slips through. To prevent from matching on any number,
+                        // this pattern matches only Major.Minor and Major.Minor.Release and not just Major.
                         $php_version = $match['0'];
-                    }
-                    if (false === $php_version) {
+                    } else {
                         $php_version = 'general';
+                    }
+                    if (false === strpos($php_version, '.')) {
+                        // Add sane minor version numbers if only a major version was found.
+                        if ('5' === $php_version) {
+                            $php_version = '5.2';
+                        } else {
+                            $php_version = "$php_version.0";
+                        }
                     }
 
                     if (! array_key_exists($php_version, $compat)) {
